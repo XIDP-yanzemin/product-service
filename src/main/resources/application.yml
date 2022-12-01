@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  datasource:
+    url: jdbc:mysql://localhost:3306/product_db?CreateDatabaseIfNotExist=true
+    username: root
+    password: password
+    driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+      schema: resources/db/migration
+  flyway:
+    enabled: true
