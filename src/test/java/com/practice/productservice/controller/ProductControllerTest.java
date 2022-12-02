@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,4 +57,21 @@ class ProductControllerTest extends WebApplicationTest {
                     .getResponse();
         }
     }
+
+    @Nested
+    class RemoveProductTest {
+        @Test
+        @Sql("/sql/data.sql")
+        void should_remove_product_by_id() throws Exception {
+            mockMvc.perform(delete("/products?id=1"))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        void should_throw_404_error_when_product_not_exists() throws Exception {
+            mockMvc.perform(delete("/products?id=100"))
+                    .andExpect(status().isNotFound());
+        }
+    }
+
 }

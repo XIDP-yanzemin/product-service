@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.math.BigDecimal;
 
 @Entity(name = "products")
 @Getter
@@ -23,7 +24,7 @@ public class Product {
 
     private String productName;
 
-    private String price;
+    private BigDecimal price;
 
     private String description;
 

@@ -2,6 +2,7 @@ package com.practice.productservice.service;
 
 import com.practice.productservice.dto.ListProductsResponse;
 import com.practice.productservice.entity.Product;
+import com.practice.productservice.exception.ProductNotFound;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.entity.Type;
 import lombok.RequiredArgsConstructor;
@@ -26,4 +27,8 @@ public class ProductService {
         return ListProductsResponse.buildResponseFrom(pageable, listByType);
     }
 
+    public void delete(Long productId) {
+        productRepository.findById(productId).orElseThrow(ProductNotFound::new);
+        productRepository.deleteById(productId);
+    }
 }
