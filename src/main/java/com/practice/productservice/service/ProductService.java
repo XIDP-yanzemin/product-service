@@ -24,6 +24,7 @@ public class ProductService {
             return ListProductsResponse.buildResponseFrom(pageable, all);
         }
         Page<Product> listByType = productRepository.findByType(type, pageable);
+        // TODO: 2022/12/3  可以直接返回 Page
         return ListProductsResponse.buildResponseFrom(pageable, listByType);
     }
 

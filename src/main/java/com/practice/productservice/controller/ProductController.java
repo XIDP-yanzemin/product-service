@@ -32,6 +32,7 @@ public class ProductController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
+    // TODO: 2022/12/3 重新看一下 RESTful CRUD 的 uri 是什么，以及对应的 Response status 是什么
     public void removeProduct(@RequestParam Long id){
         productService.delete(id);
     }
