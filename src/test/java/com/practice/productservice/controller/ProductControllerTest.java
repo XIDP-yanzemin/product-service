@@ -63,13 +63,13 @@ class ProductControllerTest extends WebApplicationTest {
         @Test
         @Sql("/sql/data.sql")
         void should_remove_product_by_id() throws Exception {
-            mockMvc.perform(delete("/products?id=1"))
-                    .andExpect(status().isOk());
+            mockMvc.perform(delete("/products/1"))
+                    .andExpect(status().isNoContent());
         }
 
         @Test
         void should_throw_404_error_when_product_not_exists() throws Exception {
-            mockMvc.perform(delete("/products?id=100"))
+            mockMvc.perform(delete("/products/100"))
                     .andExpect(status().isNotFound());
         }
     }
