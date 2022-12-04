@@ -1,6 +1,6 @@
 package com.practice.productservice.service;
 
-import com.practice.productservice.dto.ListProductsResponse;
+import com.practice.productservice.response.ListProductsResponse;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.exception.ProductNotFound;

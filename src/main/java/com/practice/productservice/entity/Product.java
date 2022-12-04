@@ -1,6 +1,8 @@
 package com.practice.productservice.entity;
 
+import com.practice.productservice.request.AddProductRequest;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Product {
 
     @Id
@@ -33,4 +36,13 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    public static Product buildProductFrom(AddProductRequest addProductRequest) {
+        return builder()
+                .productName(addProductRequest.getName())
+                .price(addProductRequest.getPrice())
+                .description(addProductRequest.getDescription())
+                .amount(addProductRequest.getAmount())
+                .type(addProductRequest.getType())
+                .build();
+    }
 }

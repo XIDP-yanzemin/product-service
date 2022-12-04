@@ -1,3 +1,4 @@
+file-save-path: /Users/zemin.yan/Desktop/images/
 spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -12,3 +13,8 @@ spring:
   h2:
     console:
       enabled: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10485760
+      max-request-size: 10MB
