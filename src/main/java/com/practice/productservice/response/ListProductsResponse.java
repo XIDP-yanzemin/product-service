@@ -1,4 +1,4 @@
-package com.practice.productservice.dto;
+package com.practice.productservice.response;
 
 import com.practice.productservice.entity.Product;
 import lombok.AllArgsConstructor;
