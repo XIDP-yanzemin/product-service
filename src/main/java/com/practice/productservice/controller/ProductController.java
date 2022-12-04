@@ -1,7 +1,5 @@
 package com.practice.productservice.controller;
 
-import com.practice.productservice.dto.ListProductsResponse;
-import com.practice.productservice.service.ProductService;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.response.ListProductsResponse;
