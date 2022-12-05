@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,8 +53,10 @@ public class ProductService {
         return ListProductsResponse.buildResponseFrom(pageable, listByType);
     }
 
+    @Transactional
     public void delete(Long productId) {
         productRepository.findById(productId).orElseThrow(ProductNotFound::new);
+        imageRepository.deleteByProductId(productId);
         productRepository.deleteById(productId);
     }
 
