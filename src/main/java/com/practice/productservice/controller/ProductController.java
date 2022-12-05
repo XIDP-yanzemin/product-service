@@ -1,7 +1,9 @@
 package com.practice.productservice.controller;
 
+import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.ListProductsResponse;
 import com.practice.productservice.response.UploadImageResponse;
 import com.practice.productservice.service.ProductService;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,17 +44,28 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeProduct(@PathVariable Long id){
+    public void removeProduct(@PathVariable Long id) {
         productService.delete(id);
     }
 
     @PostMapping("/image")
+    @ResponseStatus(HttpStatus.CREATED)
     public UploadImageResponse uploadImage(HttpServletRequest request,
                                            @RequestParam("image") MultipartFile[] files) {
         return productService.upload(request, files);
     }
+
     @PostMapping
-    public void submitProductInfo(@RequestBody @Valid AddProductRequest addProductRequest){
+    @ResponseStatus(HttpStatus.CREATED)
+    public void submitProductInfo(@RequestBody @Valid AddProductRequest addProductRequest) {
         productService.addNewProduct(addProductRequest);
+    }
+
+    @PutMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Product updateProductInfo(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateProductRequest updateProductRequest) {
+        return productService.update(id, updateProductRequest);
     }
 }

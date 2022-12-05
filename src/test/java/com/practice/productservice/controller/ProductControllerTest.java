@@ -2,6 +2,9 @@ package com.practice.productservice.controller;
 
 
 import com.practice.productservice.WebApplicationTest;
+import com.practice.productservice.entity.Type;
+import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.UpdateProductRequest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -74,4 +82,36 @@ class ProductControllerTest extends WebApplicationTest {
         }
     }
 
+    @Test
+    void should_add_new_product_info() throws Exception {
+        AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
+        mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(OBJECT_MAPPER.writeValueAsString(addProductRequest)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @Sql("/sql/data.sql")
+    void should_update_product_info() throws Exception {
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, Type.SPORTING_GOODS);
+        mockMvc.perform(put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(OBJECT_MAPPER.writeValueAsString(updateProductRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.productName").value("testName"))
+                .andExpect(jsonPath("$.price").value(88888))
+                .andExpect(jsonPath("$.type").value(Type.SPORTING_GOODS.toString()));
+    }
+
+    @Test
+    void should_throw_404_error_when_product_not_exists() throws Exception {
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, Type.SPORTING_GOODS);
+        mockMvc.perform(put("/products/100000")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(OBJECT_MAPPER.writeValueAsString(updateProductRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("product not exists."));
+    }
 }

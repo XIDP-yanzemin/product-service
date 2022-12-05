@@ -1,10 +1,12 @@
 package com.practice.productservice.entity;
 
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.UpdateProductRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 
 @Entity(name = "products")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -44,5 +47,13 @@ public class Product {
                 .amount(addProductRequest.getAmount())
                 .type(addProductRequest.getType())
                 .build();
+    }
+
+    public void updateProductInfo(UpdateProductRequest updateProductRequest, Product product) {
+        product.setProductName(updateProductRequest.getName());
+        product.setPrice(updateProductRequest.getPrice());
+        product.setAmount(updateProductRequest.getAmount());
+        product.setDescription(updateProductRequest.getDescription());
+        product.setType(updateProductRequest.getType());
     }
 }

@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
     public ErrorResult bindingResult(MethodArgumentNotValidException exception) {
         BindingResult result = exception.getBindingResult();
         StringBuilder errorMsg = new StringBuilder();

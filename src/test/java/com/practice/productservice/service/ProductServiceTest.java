@@ -1,5 +1,9 @@
 package com.practice.productservice.service;
 
+import com.practice.productservice.entity.Image;
+import com.practice.productservice.repository.ImageRepository;
+import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.ListProductsResponse;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
@@ -23,6 +27,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,6 +37,9 @@ import static org.mockito.Mockito.when;
 public class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ImageRepository imageRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -64,12 +72,14 @@ public class ProductServiceTest {
             Long id = 1L;
             Product product = new Product(1L, "test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
             when(productRepository.findById(id)).thenReturn(Optional.of(product));
+            doNothing().when(imageRepository).deleteByProductId(id);
             doNothing().when(productRepository).deleteById(id);
 
             productService.delete(id);
 
             verify(productRepository, times(1)).findById(id);
             verify(productRepository, times(1)).deleteById(id);
+            verify(imageRepository, times(1)).deleteByProductId(id);
         }
 
         @Test
@@ -84,6 +94,32 @@ public class ProductServiceTest {
             assertTrue(message.contains("product not exists."));
             verify(productRepository, times(1)).findById(id);
             verify(productRepository, times(0)).deleteById(id);
+            verify(imageRepository, times(0)).deleteByProductId(id);
         }
+    }
+
+    @Test
+    void given_add_product_request_then_add_should_save_product_info() {
+        AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
+        Product product = Product.buildProductFrom(addProductRequest);
+
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(imageRepository.save(any(Image.class))).thenReturn(null);
+
+        productService.addNewProduct(addProductRequest);
+
+        verify(productRepository, times(1)).save(any(Product.class));
+        verify(imageRepository, times(1)).save(any(Image.class));
+    }
+
+    @Test
+    void given_update_product_request_then_update_should_update_product_info() {
+        Product product = new Product(1L, "product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS);
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        productService.update(1L, updateProductRequest);
+
+        verify(productRepository, times(1)).save(any(Product.class));
     }
 }

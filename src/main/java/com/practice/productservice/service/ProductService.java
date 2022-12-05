@@ -10,6 +10,7 @@ import com.practice.productservice.exception.ProductNotFound;
 import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.ListProductsResponse;
 import com.practice.productservice.response.UploadImageResponse;
 import lombok.RequiredArgsConstructor;
@@ -106,4 +107,9 @@ public class ProductService {
         urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
     }
 
+    public Product update(Long id, UpdateProductRequest updateProductRequest) {
+        Product product = productRepository.findById(id).orElseThrow(ProductNotFound::new);
+        product.updateProductInfo(updateProductRequest, product);
+        return productRepository.save(product);
+    }
 }
