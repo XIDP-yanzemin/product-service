@@ -29,6 +29,6 @@ public class AddProductRequest {
     @NotNull(message = "type should not be null.")
     private Type type;
 
-    @NotNull
+    @NotNull(message = "url should not be null.")
     private List<String> urls;
 }
