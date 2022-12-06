@@ -1,11 +1,9 @@
 package com.practice.productservice.response;
 
-import com.practice.productservice.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -14,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ListProductsResponse {
+public class CommonPageModel {
 
-    private List<Product> content;
+    private List<ProductResponseForPage> content;
 
     private Integer pageNumber;
 
@@ -24,12 +22,12 @@ public class ListProductsResponse {
 
     private Integer numberOfElements;
 
-    public static ListProductsResponse buildResponseFrom(Pageable pageable, Page<Product> all) {
+    public static CommonPageModel buildResponseFrom(Pageable pageable, List<ProductResponseForPage> productResponseForPages) {
         return builder()
-                .content(all.toList())
+                .content(productResponseForPages)
                 .pageNumber(pageable.getPageNumber())
                 .pageSize(pageable.getPageSize())
-                .numberOfElements(all.getNumberOfElements())
+                .numberOfElements(productResponseForPages.size())
                 .build();
     }
 }

@@ -4,7 +4,7 @@ import com.practice.productservice.entity.Image;
 import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
-import com.practice.productservice.response.ListProductsResponse;
+import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.exception.ProductNotFound;
@@ -48,12 +48,14 @@ public class ProductServiceTest {
     @Test
     void given_page_number_and_size_then_list_should_return_products_by_page() {
         Product product = new Product(1L, "test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
+        Image image = new Image(1L, product, "url");
         Pageable page = PageRequest.of(0, 2);
 
         Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
         when(productRepository.findAll(page)).thenReturn(products);
+        when(imageRepository.findByProductIdIn(List.of(1L))).thenReturn(List.of(image));
 
-        ListProductsResponse response = productService.list(page, null);
+        CommonPageModel response = productService.list(page, null);
 
         assertEquals(1, response.getNumberOfElements());
         assertEquals(0, response.getPageNumber());
@@ -62,6 +64,31 @@ public class ProductServiceTest {
         assertEquals(1L, response.getContent().get(0).getId());
 
         verify(productRepository, times(1)).findAll(page);
+        verify(imageRepository, times(1)).findByProductIdIn(List.of(1L));
+    }
+
+    @Test
+    void given_page_request_and_type_then_list_should_return_products_info() {
+        Product product2 = new Product(2L, "test2", new BigDecimal(20), "description2", 20, Type.ART);
+        Image image = new Image(1L, product2, "url");
+
+        Pageable page = PageRequest.of(0, 2);
+        Page<Product> products = new PageImpl<>(List.of(product2), page, List.of(product2).size());
+
+        when(productRepository.findByType(Type.ART, page)).thenReturn(products);
+        when(imageRepository.findByProductIdIn(List.of(2L))).thenReturn(List.of(image));
+
+        CommonPageModel response = productService.list(page, Type.ART);
+
+        assertEquals(1, response.getNumberOfElements());
+        assertEquals(0, response.getPageNumber());
+        assertEquals(2, response.getPageSize());
+        assertEquals(1, response.getContent().size());
+        assertEquals(2L, response.getContent().get(0).getId());
+        assertEquals(Type.ART, response.getContent().get(0).getType());
+
+        verify(productRepository, times(1)).findByType(Type.ART, page);
+        verify(imageRepository, times(1)).findByProductIdIn(List.of(2L));
     }
 
     @Nested

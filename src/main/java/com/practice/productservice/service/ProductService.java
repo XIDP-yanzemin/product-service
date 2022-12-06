@@ -11,7 +11,8 @@ import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
-import com.practice.productservice.response.ListProductsResponse;
+import com.practice.productservice.response.CommonPageModel;
+import com.practice.productservice.response.ProductResponseForPage;
 import com.practice.productservice.response.UploadImageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,15 +46,15 @@ public class ProductService {
     @Value("${file-save-path}")
     private String fileSavePath;
 
-    public ListProductsResponse list(Pageable pageable, Type type) {
+    public CommonPageModel list(Pageable pageable, Type type) {
         if (Objects.isNull(type)) {
             Page<Product> all = productRepository.findAll(pageable);
-            return ListProductsResponse.buildResponseFrom(pageable, all);
+            return getCommonPageModel(pageable, all);
         }
         Page<Product> listByType = productRepository.findByType(type, pageable);
-        // TODO: 2022/12/3  可以直接返回 Page
-        return ListProductsResponse.buildResponseFrom(pageable, listByType);
+        return getCommonPageModel(pageable, listByType);
     }
+
 
     @Transactional
     public void remove(Long productId) {
@@ -111,5 +113,15 @@ public class ProductService {
         Product product = productRepository.findById(id).orElseThrow(ProductNotFound::new);
         product.updateProductInfo(updateProductRequest, product);
         return productRepository.save(product);
+    }
+
+    private CommonPageModel getCommonPageModel(Pageable pageable, Page<Product> products) {
+        List<Long> idList = products.stream().map(Product::getId).collect(Collectors.toList());
+        List<Image> imageList = imageRepository.findByProductIdIn(idList);
+        List<ProductResponseForPage> productResponses = products.stream()
+                .map(product -> ProductResponseForPage.buildResponseFrom(imageList, product))
+                .collect(Collectors.toList());
+
+        return CommonPageModel.buildResponseFrom(pageable, productResponses);
     }
 }

@@ -4,7 +4,7 @@ import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
-import com.practice.productservice.response.ListProductsResponse;
+import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.response.UploadImageResponse;
 import com.practice.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +35,7 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ListProductsResponse listProductForPage(
-            // TODO: fix first page equals 0
+    public CommonPageModel listProductForPage(
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Type type) {
         return productService.list(pageable, type);
