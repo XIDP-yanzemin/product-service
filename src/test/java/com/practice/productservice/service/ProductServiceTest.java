@@ -53,7 +53,7 @@ public class ProductServiceTest {
         Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
         when(productRepository.findAll(page)).thenReturn(products);
 
-        ListProductsResponse response = productService.listProductByRequest(page, null);
+        ListProductsResponse response = productService.list(page, null);
 
         assertEquals(1, response.getNumberOfElements());
         assertEquals(0, response.getPageNumber());
@@ -75,7 +75,7 @@ public class ProductServiceTest {
             doNothing().when(imageRepository).deleteByProductId(id);
             doNothing().when(productRepository).deleteById(id);
 
-            productService.delete(id);
+            productService.remove(id);
 
             verify(productRepository, times(1)).findById(id);
             verify(productRepository, times(1)).deleteById(id);
@@ -88,7 +88,7 @@ public class ProductServiceTest {
 
             when(productRepository.findById(id)).thenReturn(Optional.empty());
 
-            ProductNotFound exception = assertThrows(ProductNotFound.class, () -> productService.delete(id));
+            ProductNotFound exception = assertThrows(ProductNotFound.class, () -> productService.remove(id));
             String message = exception.getMessage();
 
             assertTrue(message.contains("product not exists."));
@@ -106,7 +106,7 @@ public class ProductServiceTest {
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(imageRepository.save(any(Image.class))).thenReturn(null);
 
-        productService.addNewProduct(addProductRequest);
+        productService.add(addProductRequest);
 
         verify(productRepository, times(1)).save(any(Product.class));
         verify(imageRepository, times(1)).save(any(Image.class));

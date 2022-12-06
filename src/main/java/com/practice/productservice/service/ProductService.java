@@ -44,7 +44,7 @@ public class ProductService {
     @Value("${file-save-path}")
     private String fileSavePath;
 
-    public ListProductsResponse listProductByRequest(Pageable pageable, Type type) {
+    public ListProductsResponse list(Pageable pageable, Type type) {
         if (Objects.isNull(type)) {
             Page<Product> all = productRepository.findAll(pageable);
             return ListProductsResponse.buildResponseFrom(pageable, all);
@@ -55,7 +55,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void delete(Long productId) {
+    public void remove(Long productId) {
         productRepository.findById(productId).orElseThrow(ProductNotFound::new);
         imageRepository.deleteByProductId(productId);
         productRepository.deleteById(productId);
@@ -100,7 +100,7 @@ public class ProductService {
         return new UploadImageResponse(responses);
     }
 
-    public void addNewProduct(AddProductRequest addProductRequest) {
+    public void add(AddProductRequest addProductRequest) {
         List<String> urls = addProductRequest.getUrls();
         Product product = productRepository.save(Product.buildProductFrom(addProductRequest));
 

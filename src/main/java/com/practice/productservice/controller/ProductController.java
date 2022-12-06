@@ -35,17 +35,17 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ListProductsResponse getProducts(
+    public ListProductsResponse listProductForPage(
             // TODO: fix first page equals 0
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Type type) {
-        return productService.listProductByRequest(pageable, type);
+        return productService.list(pageable, type);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeProduct(@PathVariable Long id) {
-        productService.delete(id);
+        productService.remove(id);
     }
 
     @PostMapping("/image")
@@ -57,8 +57,8 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void submitProductInfo(@RequestBody @Valid AddProductRequest addProductRequest) {
-        productService.addNewProduct(addProductRequest);
+    public void addNewProduct(@RequestBody @Valid AddProductRequest addProductRequest) {
+        productService.add(addProductRequest);
     }
 
     @PutMapping("{id}")
