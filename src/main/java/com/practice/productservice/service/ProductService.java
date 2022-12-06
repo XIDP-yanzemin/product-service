@@ -58,7 +58,7 @@ public class ProductService {
 
     @Transactional
     public void remove(Long productId) {
-        productRepository.findById(productId).orElseThrow(ProductNotFound::new);
+        productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         imageRepository.deleteByProductId(productId);
         productRepository.deleteById(productId);
     }
@@ -110,7 +110,7 @@ public class ProductService {
     }
 
     public Product update(Long id, UpdateProductRequest updateProductRequest) {
-        Product product = productRepository.findById(id).orElseThrow(ProductNotFound::new);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         product.updateProductInfo(updateProductRequest, product);
         return productRepository.save(product);
     }
