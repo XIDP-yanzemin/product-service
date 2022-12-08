@@ -5,6 +5,7 @@ import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
+import com.practice.productservice.response.ProductResponseForPage;
 import com.practice.productservice.response.UploadImageResponse;
 import com.practice.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -57,10 +58,10 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewProduct(
+    public ProductResponseForPage addNewProduct(
             @RequestHeader String token,
             @RequestBody @Valid AddProductRequest addProductRequest) {
-        productService.add(token, addProductRequest);
+        return productService.add(token, addProductRequest);
     }
 
     @PutMapping("{id}")

@@ -108,13 +108,15 @@ public class ProductService {
         return new UploadImageResponse(responses);
     }
 
-    public void add(String token, AddProductRequest addProductRequest) {
+    public ProductResponseForPage add(String token, AddProductRequest addProductRequest) {
         Long userId = jwtService.decodeIdFromJwt(token);
         ListUserResponse user = userFeignService.getUserById(userId);
         List<String> urls = addProductRequest.getUrls();
-        Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
 
+        Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
         urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
+
+        return ProductResponseForPage.buildProductResponse(userId, user, urls, product);
     }
 
     public Product update(Long id, UpdateProductRequest updateProductRequest) {

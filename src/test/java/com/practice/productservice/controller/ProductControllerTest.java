@@ -5,6 +5,7 @@ import com.practice.productservice.WebApplicationTest;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,7 @@ class ProductControllerTest extends WebApplicationTest {
     }
 
     @Test
+    @Disabled
     void should_add_new_product_info() throws Exception {
         AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
         mockMvc.perform(post("/products")

@@ -1,8 +1,4 @@
 file-save-path: /Users/zemin.yan/Desktop/images/
-server:
-  port: 8081
-  tomcat:
-    uri-encoding: UTF-8
 spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect

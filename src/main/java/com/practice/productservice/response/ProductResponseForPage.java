@@ -1,5 +1,6 @@
 package com.practice.productservice.response;
 
+import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
@@ -23,6 +24,14 @@ public class ProductResponseForPage {
     private Long id;
 
     private Long userId;
+
+    private String userName;
+
+    private String email;
+
+    private String cellphone;
+
+    private String address;
 
     private String productName;
 
@@ -50,6 +59,23 @@ public class ProductResponseForPage {
                         .filter(image -> image.getProduct().getId().equals(product.getId()))
                         .map(Image::getUrl)
                         .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static ProductResponseForPage buildProductResponse(Long userId, ListUserResponse user, List<String> urls, Product product) {
+        return builder()
+                .id(product.getId())
+                .userId(userId)
+                .userName(user.getUsername())
+                .email(user.getEmail())
+                .cellphone(user.getCellphone())
+                .address(user.getAddress())
+                .productName(product.getProductName())
+                .price(product.getPrice())
+                .description(product.getDescription())
+                .amount(product.getAmount())
+                .type(product.getType())
+                .urls(urls)
                 .build();
     }
 }
