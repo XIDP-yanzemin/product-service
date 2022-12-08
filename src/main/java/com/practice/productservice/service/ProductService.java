@@ -1,5 +1,7 @@
 package com.practice.productservice.service;
 
+import com.practice.productservice.client.ListUserResponse;
+import com.practice.productservice.client.UserFeignService;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
@@ -14,6 +16,7 @@ import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.response.ProductResponseForPage;
 import com.practice.productservice.response.UploadImageResponse;
+import com.practice.productservice.util.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +42,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
+
+    private final UserFeignService userFeignService;
+    private final JwtService jwtService;
 
     @Value("${spring.servlet.multipart.max-file-size}")
     private Long maxSize;
@@ -102,9 +108,11 @@ public class ProductService {
         return new UploadImageResponse(responses);
     }
 
-    public void add(AddProductRequest addProductRequest) {
+    public void add(String token, AddProductRequest addProductRequest) {
+        Long userId = jwtService.decodeIdFromJwt(token);
+        ListUserResponse user = userFeignService.getUserById(userId);
         List<String> urls = addProductRequest.getUrls();
-        Product product = productRepository.save(Product.buildProductFrom(addProductRequest));
+        Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
 
         urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
     }

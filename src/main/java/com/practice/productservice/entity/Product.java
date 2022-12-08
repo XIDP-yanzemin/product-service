@@ -1,5 +1,6 @@
 package com.practice.productservice.entity;
 
+import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,16 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
+    private String userName;
+
+    private String email;
+
+    private String cellphone;
+
+    private String address;
+
     private String productName;
 
     private BigDecimal price;
@@ -39,13 +50,18 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    public static Product buildProductFrom(AddProductRequest addProductRequest) {
+    public static Product buildProductFrom(ListUserResponse user, AddProductRequest addProductRequest) {
         return builder()
                 .productName(addProductRequest.getName())
                 .price(addProductRequest.getPrice())
                 .description(addProductRequest.getDescription())
                 .amount(addProductRequest.getAmount())
                 .type(addProductRequest.getType())
+                .userId(user.getId())
+                .userName(user.getUsername())
+                .email(user.getEmail())
+                .cellphone(user.getCellphone())
+                .address(user.getAddress())
                 .build();
     }
 

@@ -4,7 +4,7 @@
 #
 file-save-path: /Users/zemin.yan/Desktop/images/
 server:
-  port: 8080
+  port: 8081
   tomcat:
     uri-encoding: UTF-8
 spring:
@@ -13,6 +13,8 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    open-in-view: true
+    show-sql: true
   datasource:
     url: jdbc:mysql://localhost:3306/product_db?CreateDatabaseIfNotExist=true
     username: root

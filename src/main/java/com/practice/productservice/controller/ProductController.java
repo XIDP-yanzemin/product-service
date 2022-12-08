@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -56,8 +57,10 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewProduct(@RequestBody @Valid AddProductRequest addProductRequest) {
-        productService.add(addProductRequest);
+    public void addNewProduct(
+            @RequestHeader String token,
+            @RequestBody @Valid AddProductRequest addProductRequest) {
+        productService.add(token, addProductRequest);
     }
 
     @PutMapping("{id}")

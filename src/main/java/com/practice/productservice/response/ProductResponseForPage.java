@@ -22,6 +22,8 @@ public class ProductResponseForPage {
 
     private Long id;
 
+    private Long userId;
+
     private String productName;
 
     private BigDecimal price;
@@ -38,6 +40,7 @@ public class ProductResponseForPage {
     public static ProductResponseForPage buildResponseFrom(List<Image> imageList, Product product) {
         return builder()
                 .id(product.getId())
+                .userId(product.getUserId())
                 .productName(product.getProductName())
                 .description(product.getDescription())
                 .price(product.getPrice())
