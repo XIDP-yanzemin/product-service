@@ -126,5 +126,12 @@ class ProductControllerTest extends WebApplicationTest {
                         .header("token", TOKEN))
                 .andExpect(status().isCreated());
     }
+    @Test
+    @Sql("/sql/data.sql")
+    void should_remove_product_from_favorite() throws Exception {
+        mockMvc.perform(delete("/products?id=1")
+                        .header("token", TOKEN))
+                .andExpect(status().isNoContent());
+    }
 
 }

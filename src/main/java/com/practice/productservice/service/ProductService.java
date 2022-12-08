@@ -144,4 +144,12 @@ public class ProductService {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         userProductRelationRepository.save(UserProductRelation.buildUserProductRelation(userId, product.getId()));
     }
+
+    public void removeFavorite(String token, Long productId) {
+        Long userId = jwtService.decodeIdFromJwt(token);
+        UserProductRelation relation = userProductRelationRepository
+                .findByUserIdAndProductId(userId, productId)
+                .orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        userProductRelationRepository.deleteById(relation.getId());
+    }
 }

@@ -64,7 +64,7 @@ public class ProductController {
         return productService.add(token, addProductRequest);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Product updateProductInfo(
             @PathVariable Long id,
@@ -79,4 +79,13 @@ public class ProductController {
             @PathVariable Long id) {
         productService.favorite(token, id);
     }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFavoriteProductById(
+            @RequestHeader String token,
+            @RequestParam Long id) {
+        productService.removeFavorite(token, id);
+    }
+
 }
