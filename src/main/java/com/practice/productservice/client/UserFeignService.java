@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "user-service", url = "http://localhost:8080/users")
+@FeignClient(name = "user-service", url = "http://localhost:8081/users")
 public interface UserFeignService {
 
     //fix bug：need login
