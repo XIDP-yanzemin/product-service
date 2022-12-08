@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ProductControllerTest extends WebApplicationTest {
 
+    public static final String TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiT1JESU5BUllfVVNFUiIsImlkIjoyLCJleHAiOjE2NzExMTM2NDd9.3WwL4gcCbhwGrV38AdtkPCjcpV3wJpsNGTLYQvbB3Dk";
     @Autowired
     private MockMvc mockMvc;
 
@@ -86,6 +87,7 @@ class ProductControllerTest extends WebApplicationTest {
     void should_add_new_product_info() throws Exception {
         AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
         mockMvc.perform(post("/products")
+                        .header("token", TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(addProductRequest)))
                 .andExpect(status().isCreated());
