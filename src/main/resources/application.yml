@@ -1,7 +1,3 @@
-#image:
-#  upload:
-#    path: {$UPLOAD_IMAGE : /Users/zemin.yan/Desktop/images}
-#
 file-save-path: /Users/zemin.yan/Desktop/images/
 server:
   port: 8081
