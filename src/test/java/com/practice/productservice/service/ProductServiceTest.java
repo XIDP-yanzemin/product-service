@@ -46,7 +46,7 @@ public class ProductServiceTest {
 
     @Test
     void given_page_number_and_size_then_list_should_return_products_by_page() {
-        Product product = new Product(1L, 1L, "username", "test@gmail.com", "1234567890", "address", "test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
+        Product product = new Product(1L, 1L, "test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
         Image image = new Image(1L, product, "url");
         Pageable page = PageRequest.of(0, 2);
 
@@ -68,7 +68,7 @@ public class ProductServiceTest {
 
     @Test
     void given_page_request_and_type_then_list_should_return_products_info() {
-        Product product2 = new Product(2L, 1L, "username", "test@gmail.com", "1234567890", "address", "test2", new BigDecimal(20), "description2", 20, Type.ART);
+        Product product2 = new Product(2L, 1L, "test2", new BigDecimal(20), "description2", 20, Type.ART);
         Image image = new Image(1L, product2, "url");
 
         Pageable page = PageRequest.of(0, 2);
@@ -96,7 +96,7 @@ public class ProductServiceTest {
         @Test
         void given_product_id_then_remove_should_delete_product() {
             Long id = 1L;
-            Product product = new Product(1L, 1L, "username", "test@gmail.com", "1234567890", "address", "test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
+            Product product = new Product(1L, 1L,"test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
             when(productRepository.findById(id)).thenReturn(Optional.of(product));
             doNothing().when(imageRepository).deleteByProductId(id);
             doNothing().when(productRepository).deleteById(id);
@@ -140,7 +140,7 @@ public class ProductServiceTest {
 
     @Test
     void given_update_product_request_then_update_should_update_product_info() {
-        Product product = new Product(1L, 1L, "username", "test@gmail.com", "1234567890", "address", "product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS);
+        Product product = new Product(1L, 1L,"product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS);
 
         UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
