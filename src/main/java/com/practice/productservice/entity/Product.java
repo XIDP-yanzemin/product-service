@@ -31,14 +31,6 @@ public class Product {
 
     private Long userId;
 
-    private String userName;
-
-    private String email;
-
-    private String cellphone;
-
-    private String address;
-
     private String productName;
 
     private BigDecimal price;
@@ -58,10 +50,6 @@ public class Product {
                 .amount(addProductRequest.getAmount())
                 .type(addProductRequest.getType())
                 .userId(user.getId())
-                .userName(user.getUsername())
-                .email(user.getEmail())
-                .cellphone(user.getCellphone())
-                .address(user.getAddress())
                 .build();
     }
 
