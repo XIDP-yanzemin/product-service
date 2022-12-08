@@ -49,6 +49,22 @@ class ProductControllerTest extends WebApplicationTest {
                     .andReturn()
                     .getResponse();
         }
+        @Test
+        @Sql("/sql/data.sql")
+        void should_return_favorite_products_by_page() throws Exception {
+            Pageable page = PageRequest.of(0, 2);
+
+            mockMvc.perform(get("/products/favorites")
+                            .header("token", TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(OBJECT_MAPPER.writeValueAsString(page)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber").value(0))
+                    .andExpect(jsonPath("$.pageSize").value(10))
+                    .andExpect(jsonPath("$.numberOfElements").value(1))
+                    .andReturn()
+                    .getResponse();
+        }
 
         @Test
         @Sql("/sql/data.sql")
@@ -133,5 +149,4 @@ class ProductControllerTest extends WebApplicationTest {
                         .header("token", TOKEN))
                 .andExpect(status().isNoContent());
     }
-
 }

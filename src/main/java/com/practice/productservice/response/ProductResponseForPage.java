@@ -46,7 +46,7 @@ public class ProductResponseForPage {
 
     private List<String> urls;
 
-    public static ProductResponseForPage buildProductResponse(Long userId, ListUserResponse user, List<String> urls, Product product) {
+    public static ProductResponseForPage from(Long userId, ListUserResponse user, List<String> urls, Product product) {
         return builder()
                 .id(product.getId())
                 .userId(userId)
@@ -63,7 +63,9 @@ public class ProductResponseForPage {
                 .build();
     }
 
-    public static ProductResponseForPage buildProductResponseForPageFrom(List<Image> imageList, Product product, ListUserResponse user) {
+    public static ProductResponseForPage buildProductResponseForPageFrom(List<Image> imageList,
+                                                                         Product product,
+                                                                         ListUserResponse user) {
         return builder()
                 .id(product.getId())
                 .userId(user.getId())

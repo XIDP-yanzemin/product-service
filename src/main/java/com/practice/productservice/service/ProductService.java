@@ -65,6 +65,15 @@ public class ProductService {
         return getCommonPageModel(pageable, listByType);
     }
 
+    public CommonPageModel<ProductResponseForPage> listFavoriteProducts(Pageable pageable, String token) {
+        ListUserResponse user = userFeignService.getUserById(jwtService.decodeIdFromJwt(token));
+        List<Long> idList = userProductRelationRepository.findByUserId(user.getId())
+                .stream()
+                .map(UserProductRelation::getProductId)
+                .collect(Collectors.toList());
+        Page<Product> products = productRepository.findByIdIn(idList, pageable);
+         return getCommonPageModel(pageable, products);
+    }
 
     @Transactional
     public void remove(Long productId) {
@@ -120,7 +129,7 @@ public class ProductService {
         Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
         urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
 
-        return ProductResponseForPage.buildProductResponse(userId, user, urls, product);
+        return ProductResponseForPage.from(userId, user, urls, product);
     }
 
     public Product update(Long id, UpdateProductRequest updateProductRequest) {
@@ -133,6 +142,12 @@ public class ProductService {
         List<Long> idList = products.stream().map(Product::getId).collect(Collectors.toList());
         List<Image> imageList = imageRepository.findByProductIdIn(idList);
 
+        List<ProductResponseForPage> responses = getProductResponseForPages(products, imageList);
+
+        return CommonPageModel.from(pageable, responses);
+    }
+
+    private List<ProductResponseForPage> getProductResponseForPages(Page<Product> products, List<Image> imageList) {
         List<ProductResponseForPage> responses = new ArrayList<>();
         for (Product product : products) {
             ListUserResponse user = userFeignService.getUserById(product.getUserId());
@@ -141,12 +156,7 @@ public class ProductService {
                     .buildProductResponseForPageFrom(imageList, product, user);
             responses.add(productResponse);
         }
-        return CommonPageModel.<ProductResponseForPage>builder()
-                .content(responses)
-                .pageNumber(pageable.getPageNumber())
-                .pageSize(pageable.getPageSize())
-                .numberOfElements(responses.size())
-                .build();
+        return responses;
     }
 
     public void favorite(String token, Long id) {
@@ -162,4 +172,5 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         userProductRelationRepository.deleteById(relation.getId());
     }
+
 }

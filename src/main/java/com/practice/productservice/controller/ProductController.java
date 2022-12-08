@@ -43,6 +43,14 @@ public class ProductController {
         return productService.list(pageable, type);
     }
 
+    @GetMapping("/favorites")
+    @ResponseStatus(HttpStatus.OK)
+    public CommonPageModel<ProductResponseForPage> listFavoriteProducts(
+            @PageableDefault Pageable pageable,
+            @RequestHeader String token) {
+        return productService.listFavoriteProducts(pageable, token);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeProduct(@PathVariable Long id) {
@@ -66,6 +74,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    // todo; support update image?
     public Product updateProductInfo(
             @PathVariable Long id,
             @RequestBody @Valid UpdateProductRequest updateProductRequest) {
