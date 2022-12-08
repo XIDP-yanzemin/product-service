@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,22 +11,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommonPageModel {
+public class CommonPageModel<T> {
 
-    private List<ProductResponseForPage> content;
+    protected List<T> content;
 
-    private Integer pageNumber;
+    protected Integer pageNumber;
 
-    private Integer pageSize;
+    protected Integer pageSize;
 
-    private Integer numberOfElements;
+    protected Integer numberOfElements;
 
-    public static CommonPageModel buildResponseFrom(Pageable pageable, List<ProductResponseForPage> productResponseForPages) {
-        return builder()
-                .content(productResponseForPages)
-                .pageNumber(pageable.getPageNumber())
-                .pageSize(pageable.getPageSize())
-                .numberOfElements(productResponseForPages.size())
-                .build();
-    }
 }

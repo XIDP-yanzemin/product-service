@@ -56,7 +56,7 @@ public class ProductService {
     @Value("${file-save-path}")
     private String fileSavePath;
 
-    public CommonPageModel list(Pageable pageable, Type type) {
+    public CommonPageModel<ProductResponseForPage> list(Pageable pageable, Type type) {
         if (Objects.isNull(type)) {
             Page<Product> all = productRepository.findAll(pageable);
             return getCommonPageModel(pageable, all);
@@ -129,14 +129,24 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    private CommonPageModel getCommonPageModel(Pageable pageable, Page<Product> products) {
+    private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {
         List<Long> idList = products.stream().map(Product::getId).collect(Collectors.toList());
         List<Image> imageList = imageRepository.findByProductIdIn(idList);
-        List<ProductResponseForPage> productResponses = products.stream()
-                .map(product -> ProductResponseForPage.buildResponseFrom(imageList, product))
-                .collect(Collectors.toList());
 
-        return CommonPageModel.buildResponseFrom(pageable, productResponses);
+        List<ProductResponseForPage> responses = new ArrayList<>();
+        for (Product product : products) {
+            ListUserResponse user = userFeignService.getUserById(product.getUserId());
+
+            ProductResponseForPage productResponse = ProductResponseForPage
+                    .buildProductResponseForPageFrom(imageList, product, user);
+            responses.add(productResponse);
+        }
+        return CommonPageModel.<ProductResponseForPage>builder()
+                .content(responses)
+                .pageNumber(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .numberOfElements(responses.size())
+                .build();
     }
 
     public void favorite(String token, Long id) {

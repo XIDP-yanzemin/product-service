@@ -8,6 +8,7 @@ import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
+import com.practice.productservice.response.ProductResponseForPage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +55,7 @@ public class ProductServiceTest {
         when(productRepository.findAll(page)).thenReturn(products);
         when(imageRepository.findByProductIdIn(List.of(1L))).thenReturn(List.of(image));
 
-        CommonPageModel response = productService.list(page, null);
+        CommonPageModel<ProductResponseForPage> response = productService.list(page, null);
 
         assertEquals(1, response.getNumberOfElements());
         assertEquals(0, response.getPageNumber());
@@ -77,7 +78,7 @@ public class ProductServiceTest {
         when(productRepository.findByType(Type.ART, page)).thenReturn(products);
         when(imageRepository.findByProductIdIn(List.of(2L))).thenReturn(List.of(image));
 
-        CommonPageModel response = productService.list(page, Type.ART);
+        CommonPageModel<ProductResponseForPage> response = productService.list(page, Type.ART);
 
         assertEquals(1, response.getNumberOfElements());
         assertEquals(0, response.getPageNumber());

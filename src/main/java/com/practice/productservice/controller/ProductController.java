@@ -37,7 +37,7 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public CommonPageModel listProductForPage(
+    public CommonPageModel<ProductResponseForPage> listProductForPage(
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Type type) {
         return productService.list(pageable, type);
