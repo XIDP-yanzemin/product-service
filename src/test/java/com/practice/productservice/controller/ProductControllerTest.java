@@ -118,4 +118,13 @@ class ProductControllerTest extends WebApplicationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("product not exists."));
     }
+
+    @Test
+    @Sql("/sql/data.sql")
+    void should_add_product_to_favorite() throws Exception {
+        mockMvc.perform(post("/products/1")
+                        .header("token", TOKEN))
+                .andExpect(status().isCreated());
+    }
+
 }

@@ -6,11 +6,13 @@ import com.practice.productservice.constant.Constant;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.UserProductRelation;
 import com.practice.productservice.exception.BusinessException;
 import com.practice.productservice.exception.ErrorCode;
 import com.practice.productservice.exception.ProductNotFound;
 import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.repository.ProductRepository;
+import com.practice.productservice.repository.UserProductRelationRepository;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
@@ -45,6 +47,8 @@ public class ProductService {
 
     private final UserFeignService userFeignService;
     private final JwtService jwtService;
+
+    private final UserProductRelationRepository userProductRelationRepository;
 
     @Value("${spring.servlet.multipart.max-file-size}")
     private Long maxSize;
@@ -133,5 +137,11 @@ public class ProductService {
                 .collect(Collectors.toList());
 
         return CommonPageModel.buildResponseFrom(pageable, productResponses);
+    }
+
+    public void favorite(String token, Long id) {
+        Long userId = jwtService.decodeIdFromJwt(token);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        userProductRelationRepository.save(UserProductRelation.buildUserProductRelation(userId, product.getId()));
     }
 }

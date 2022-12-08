@@ -71,4 +71,12 @@ public class ProductController {
             @RequestBody @Valid UpdateProductRequest updateProductRequest) {
         return productService.update(id, updateProductRequest);
     }
+
+    @PostMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void favoriteProduct(
+            @RequestHeader String token,
+            @PathVariable Long id) {
+        productService.favorite(token, id);
+    }
 }
