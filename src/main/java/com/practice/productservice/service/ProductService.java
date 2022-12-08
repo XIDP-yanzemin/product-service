@@ -165,6 +165,7 @@ public class ProductService {
         userProductRelationRepository.save(UserProductRelation.buildUserProductRelation(userId, product.getId()));
     }
 
+    @Transactional
     public void removeFavorite(String token, Long productId) {
         Long userId = jwtService.decodeIdFromJwt(token);
         UserProductRelation relation = userProductRelationRepository
