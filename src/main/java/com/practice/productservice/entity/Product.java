@@ -2,6 +2,7 @@ package com.practice.productservice.entity;
 
 import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +51,18 @@ public class Product {
                 .amount(addProductRequest.getAmount())
                 .type(addProductRequest.getType())
                 .userId(user.getId())
+                .build();
+    }
+
+    public static Product buildProductFrom(BaseProductRequest baseProductRequest, Long userId) {
+        return builder()
+                .userId(userId)
+                .productName(baseProductRequest.getName())
+                .price(baseProductRequest.getPrice())
+                .description(baseProductRequest.getDescription())
+                .price(baseProductRequest.getPrice())
+                .amount(baseProductRequest.getAmount())
+                .type(baseProductRequest.getType())
                 .build();
     }
 

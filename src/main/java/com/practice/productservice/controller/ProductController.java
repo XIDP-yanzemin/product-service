@@ -3,6 +3,7 @@ package com.practice.productservice.controller;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.response.ProductResponseForPage;
@@ -95,6 +96,15 @@ public class ProductController {
             @RequestHeader String token,
             @RequestParam Long id) {
         productService.removeFavorite(token, id);
+    }
+
+    @PostMapping("/want-to-buy")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductResponseForPage addWantToBuyProduct(
+            @RequestHeader String token,
+            @RequestBody BaseProductRequest baseProductRequest
+            ){
+        return productService.wantToBuy(token, baseProductRequest);
     }
 
 }

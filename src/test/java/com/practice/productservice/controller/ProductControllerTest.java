@@ -1,9 +1,11 @@
 package com.practice.productservice.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.practice.productservice.WebApplicationTest;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -49,6 +51,7 @@ class ProductControllerTest extends WebApplicationTest {
                     .andReturn()
                     .getResponse();
         }
+
         @Test
         @Sql("/sql/data.sql")
         void should_return_favorite_products_by_page() throws Exception {
@@ -103,7 +106,14 @@ class ProductControllerTest extends WebApplicationTest {
     @Test
     @Disabled
     void should_add_new_product_info() throws Exception {
-        AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
+        AddProductRequest addProductRequest = AddProductRequest.builder()
+                .name("testName")
+                .description("")
+                .price(new BigDecimal(1000))
+                .amount(1000)
+                .type(Type.SPORTING_GOODS)
+                .urls(List.of("url"))
+                .build();
         mockMvc.perform(post("/products")
                         .header("token", TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -142,11 +152,27 @@ class ProductControllerTest extends WebApplicationTest {
                         .header("token", TOKEN))
                 .andExpect(status().isCreated());
     }
+
     @Test
     @Sql("/sql/data.sql")
     void should_remove_product_from_favorite() throws Exception {
         mockMvc.perform(delete("/products?id=1")
                         .header("token", TOKEN))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void should_add_want_to_buy_product() throws Exception {
+        BaseProductRequest baseProductRequest = new BaseProductRequest(
+                "want-to-buy product", "want to buy", new BigDecimal(666), 1, Type.BEAUTY);
+        mockMvc.perform(post("/products/want-to-buy")
+                        .header("token", TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(OBJECT_MAPPER.writeValueAsString(baseProductRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.productName").value("want-to-buy product"))
+                .andExpect(jsonPath("$.type").value(Type.BEAUTY.toString()))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 }
