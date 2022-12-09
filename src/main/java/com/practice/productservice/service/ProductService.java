@@ -14,6 +14,7 @@ import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.repository.UserProductRelationRepository;
 import com.practice.productservice.request.AddProductRequest;
+import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.response.ProductResponseForPage;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -129,7 +131,7 @@ public class ProductService {
         Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
         urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
 
-        return ProductResponseForPage.from(userId, user, urls, product);
+        return ProductResponseForPage.from(user, urls, product);
     }
 
     public Product update(Long id, UpdateProductRequest updateProductRequest) {
@@ -166,6 +168,14 @@ public class ProductService {
                 .findByUserIdAndProductId(userId, productId)
                 .orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         userProductRelationRepository.deleteById(relation.getId());
+    }
+
+    public ProductResponseForPage wantToBuy(String token, BaseProductRequest baseProductRequest) {
+        Long userId = jwtService.decodeIdFromJwt(token);
+        ListUserResponse user = userFeignService.getUserById(userId);
+        Product product = Product.buildProductFrom(baseProductRequest, userId);
+        productRepository.save(product);
+        return ProductResponseForPage.from(user, Collections.emptyList(), product);
     }
 
 }

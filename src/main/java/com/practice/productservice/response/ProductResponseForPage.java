@@ -46,10 +46,10 @@ public class ProductResponseForPage {
 
     private List<String> urls;
 
-    public static ProductResponseForPage from(Long userId, ListUserResponse user, List<String> urls, Product product) {
+    public static ProductResponseForPage from(ListUserResponse user, List<String> urls, Product product) {
         return builder()
                 .id(product.getId())
-                .userId(userId)
+                .userId(user.getId())
                 .userName(user.getUsername())
                 .email(user.getEmail())
                 .cellphone(user.getCellphone())
