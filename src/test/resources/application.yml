@@ -1,5 +1,17 @@
 file-save-path: /Users/zemin.yan/Desktop/images/
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: josieyan123@gmail.com
+    password: uvxhgfsogbplswyi
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true

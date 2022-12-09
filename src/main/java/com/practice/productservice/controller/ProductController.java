@@ -65,7 +65,7 @@ public class ProductController {
         return productService.upload(request, files);
     }
 
-    @PostMapping
+    @PostMapping("/sell-item")
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponseForPage addNewProduct(
             @RequestHeader String token,
@@ -98,13 +98,26 @@ public class ProductController {
         productService.removeFavorite(token, id);
     }
 
-    @PostMapping("/want-to-buy")
+    @PostMapping("/buy-item")
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponseForPage addWantToBuyProduct(
             @RequestHeader String token,
             @RequestBody BaseProductRequest baseProductRequest
-            ){
+    ) {
         return productService.wantToBuy(token, baseProductRequest);
+    }
+
+
+    @PostMapping("/buy-item/{productId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void buyProduct(@RequestHeader String token, @PathVariable Long productId) {
+        productService.buyProduct(token, productId);
+    }
+
+    @PostMapping("/sell-item/{productId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void sellProduct(@RequestHeader String token, @PathVariable Long productId) {
+        productService.sellProduct(token, productId);
     }
 
 }

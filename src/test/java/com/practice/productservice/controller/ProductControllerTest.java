@@ -1,25 +1,29 @@
 package com.practice.productservice.controller;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.practice.productservice.WebApplicationTest;
+import com.practice.productservice.constant.Constant;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,9 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ProductControllerTest extends WebApplicationTest {
 
-    public static final String TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiT1JESU5BUllfVVNFUiIsImlkIjoyLCJleHAiOjE2NzExMTM2NDd9.3WwL4gcCbhwGrV38AdtkPCjcpV3wJpsNGTLYQvbB3Dk";
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private JavaMailSender javaMailSender;
 
     @Nested
     class ListProductsTest {
@@ -47,7 +52,7 @@ class ProductControllerTest extends WebApplicationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber").value(0))
                     .andExpect(jsonPath("$.pageSize").value(2))
-                    .andExpect(jsonPath("$.numberOfElements").value(2))
+                    .andExpect(jsonPath("$.numberOfElements").value(4))
                     .andReturn()
                     .getResponse();
         }
@@ -58,7 +63,7 @@ class ProductControllerTest extends WebApplicationTest {
             Pageable page = PageRequest.of(0, 2);
 
             mockMvc.perform(get("/products/favorites")
-                            .header("token", TOKEN)
+                            .header("token", Constant.TOKEN)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(OBJECT_MAPPER.writeValueAsString(page)))
                     .andExpect(status().isOk())
@@ -104,7 +109,6 @@ class ProductControllerTest extends WebApplicationTest {
     }
 
     @Test
-    @Disabled
     void should_add_new_product_info() throws Exception {
         AddProductRequest addProductRequest = AddProductRequest.builder()
                 .name("testName")
@@ -114,11 +118,15 @@ class ProductControllerTest extends WebApplicationTest {
                 .type(Type.SPORTING_GOODS)
                 .urls(List.of("url"))
                 .build();
-        mockMvc.perform(post("/products")
-                        .header("token", TOKEN)
+        mockMvc.perform(post("/products/sell-item")
+                        .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(addProductRequest)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.productName").value("testName"))
+                .andExpect(jsonPath("$.type").value(Type.SPORTING_GOODS.toString()))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test
@@ -149,7 +157,7 @@ class ProductControllerTest extends WebApplicationTest {
     @Sql("/sql/data.sql")
     void should_add_product_to_favorite() throws Exception {
         mockMvc.perform(post("/products/1")
-                        .header("token", TOKEN))
+                        .header("token", Constant.TOKEN))
                 .andExpect(status().isCreated());
     }
 
@@ -157,7 +165,7 @@ class ProductControllerTest extends WebApplicationTest {
     @Sql("/sql/data.sql")
     void should_remove_product_from_favorite() throws Exception {
         mockMvc.perform(delete("/products?id=1")
-                        .header("token", TOKEN))
+                        .header("token", Constant.TOKEN))
                 .andExpect(status().isNoContent());
     }
 
@@ -165,8 +173,8 @@ class ProductControllerTest extends WebApplicationTest {
     void should_add_want_to_buy_product() throws Exception {
         BaseProductRequest baseProductRequest = new BaseProductRequest(
                 "want-to-buy product", "want to buy", new BigDecimal(666), 1, Type.BEAUTY);
-        mockMvc.perform(post("/products/want-to-buy")
-                        .header("token", TOKEN)
+        mockMvc.perform(post("/products/buy-item")
+                        .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(baseProductRequest)))
                 .andExpect(status().isCreated())
@@ -174,5 +182,23 @@ class ProductControllerTest extends WebApplicationTest {
                 .andExpect(jsonPath("$.productName").value("want-to-buy product"))
                 .andExpect(jsonPath("$.type").value(Type.BEAUTY.toString()))
                 .andExpect(jsonPath("$.userId").isNotEmpty());
+    }
+
+    @Test
+    @Sql("/sql/data.sql")
+    public void should_send_out_buy_item_email() throws Exception {
+        doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
+        mockMvc.perform(post("/products/buy-item/1")
+                        .header("token", Constant.TOKEN))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Sql("/sql/data.sql")
+    public void should_send_out_sell_item_email() throws Exception {
+        doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
+        mockMvc.perform(post("/products/sell-item/1")
+                        .header("token", Constant.TOKEN))
+                .andExpect(status().isOk());
     }
 }

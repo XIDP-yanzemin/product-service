@@ -25,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailSendException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +53,11 @@ public class ProductService {
     private final UserFeignService userFeignService;
     private final JwtService jwtService;
 
+    private final JavaMailSender javaMailSender;
+
+    @Value("${spring.mail.username}")
+    private String from;
+
     private final UserProductRelationRepository userProductRelationRepository;
 
     @Value("${spring.servlet.multipart.max-file-size}")
@@ -74,7 +82,7 @@ public class ProductService {
                 .map(UserProductRelation::getProductId)
                 .collect(Collectors.toList());
         Page<Product> products = productRepository.findByIdIn(idList, pageable);
-         return getCommonPageModel(pageable, products);
+        return getCommonPageModel(pageable, products);
     }
 
     @Transactional
@@ -178,4 +186,37 @@ public class ProductService {
         return ProductResponseForPage.from(user, Collections.emptyList(), product);
     }
 
+    public void buyProduct(String token, Long productId) {
+        sendEmailToEmailReceiver(token, productId, Constant.BUY_SUBJECT, Constant.BUY_EMAIL_BODY);
+    }
+
+
+    public void sellProduct(String token, Long productId) {
+        sendEmailToEmailReceiver(token, productId, Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
+    }
+
+    private void sendEmailToEmailReceiver(String token, Long productId, String buySubject, String buyEmailBody) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        Long userId = jwtService.decodeIdFromJwt(token);
+        if(!product.getUserId().equals(userId)){
+            throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
+        }
+        ListUserResponse contactor = userFeignService.getUserById(userId);
+        ListUserResponse emailReceiver = userFeignService.getUserById(product.getUserId());
+
+        sendEmail(emailReceiver, buySubject, buyEmailBody, contactor);
+    }
+
+    private void sendEmail(ListUserResponse emailReceiver, String subject, String x, ListUserResponse contactor) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(emailReceiver.getEmail());
+        message.setSubject(subject);
+        message.setText(x + contactor.getEmail());
+        try {
+            javaMailSender.send(message);
+        } catch (MailSendException e) {
+            throw new MailSendException("Fail to send email.");
+        }
+    }
 }

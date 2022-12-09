@@ -19,7 +19,8 @@ public enum ErrorCode {
     IMAGE_UPLOAD_EXCEPTION("image upload fails."),
 
     // product exception
-    PRODUCT_NOT_FOUND("product not exists.");
+    PRODUCT_NOT_FOUND("product not exists."),
 
+    PRODUCT_OWNER_EXCEPTION("Selected product is not owned by this user.");
     public final String message;
 }
