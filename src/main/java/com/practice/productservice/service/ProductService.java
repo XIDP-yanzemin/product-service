@@ -142,12 +142,6 @@ public class ProductService {
         List<Long> idList = products.stream().map(Product::getId).collect(Collectors.toList());
         List<Image> imageList = imageRepository.findByProductIdIn(idList);
 
-        List<ProductResponseForPage> responses = getProductResponseForPages(products, imageList);
-
-        return CommonPageModel.from(pageable, responses);
-    }
-
-    private List<ProductResponseForPage> getProductResponseForPages(Page<Product> products, List<Image> imageList) {
         List<ProductResponseForPage> responses = new ArrayList<>();
         for (Product product : products) {
             ListUserResponse user = userFeignService.getUserById(product.getUserId());
@@ -156,7 +150,7 @@ public class ProductService {
                     .buildProductResponseForPageFrom(imageList, product, user);
             responses.add(productResponse);
         }
-        return responses;
+        return CommonPageModel.from(products, pageable, responses);
     }
 
     public void favorite(String token, Long id) {
