@@ -73,6 +73,15 @@ public class ProductController {
         return productService.add(token, addProductRequest);
     }
 
+    @PostMapping("/buy-item")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductResponseForPage addWantToBuyProduct(
+            @RequestHeader String token,
+            @RequestBody BaseProductRequest baseProductRequest
+    ) {
+        return productService.addWantToBuyProduct(token, baseProductRequest);
+    }
+
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     // todo; support update image?
@@ -96,15 +105,6 @@ public class ProductController {
             @RequestHeader String token,
             @RequestParam Long id) {
         productService.removeFavorite(token, id);
-    }
-
-    @PostMapping("/buy-item")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponseForPage addWantToBuyProduct(
-            @RequestHeader String token,
-            @RequestBody BaseProductRequest baseProductRequest
-    ) {
-        return productService.wantToBuy(token, baseProductRequest);
     }
 
 

@@ -178,7 +178,7 @@ public class ProductService {
         userProductRelationRepository.deleteById(relation.getId());
     }
 
-    public ProductResponseForPage wantToBuy(String token, BaseProductRequest baseProductRequest) {
+    public ProductResponseForPage addWantToBuyProduct(String token, BaseProductRequest baseProductRequest) {
         Long userId = jwtService.decodeIdFromJwt(token);
         ListUserResponse user = userFeignService.getUserById(userId);
         Product product = Product.buildProductFrom(baseProductRequest, userId);
