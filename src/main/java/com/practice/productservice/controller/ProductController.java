@@ -41,7 +41,7 @@ public class ProductController {
         return productService.list(pageable, type);
     }
 
-    @GetMapping("/favorites")
+    @GetMapping("/list-favorites")
     @ResponseStatus(HttpStatus.OK)
     public CommonPageModel<ProductResponseForPage> listFavoriteProducts(
             @PageableDefault Pageable pageable,
@@ -82,17 +82,15 @@ public class ProductController {
         return productService.update(id, updateProductRequest);
     }
 
-    //todo uri
-    @PostMapping("/{id}")
+    @PostMapping("/add-favorites")
     @ResponseStatus(HttpStatus.CREATED)
     public void favoriteProduct(
             @RequestHeader String token,
-            @PathVariable Long id) {
+            @RequestParam Long id) {
         productService.favorite(token, id);
     }
 
-    //todo uri
-    @DeleteMapping
+    @DeleteMapping("/remove-favorites")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFavoriteProductById(
             @RequestHeader String token,

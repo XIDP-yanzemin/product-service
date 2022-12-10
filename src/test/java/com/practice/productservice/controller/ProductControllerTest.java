@@ -156,7 +156,7 @@ class ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     void should_add_product_to_favorite() throws Exception {
-        mockMvc.perform(post("/products/1")
+        mockMvc.perform(post("/products/add-favorites?id=1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isCreated());
     }
@@ -164,7 +164,7 @@ class ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     void should_remove_product_from_favorite() throws Exception {
-        mockMvc.perform(delete("/products?id=1")
+        mockMvc.perform(delete("/products/remove-favorites?id=1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isNoContent());
     }
