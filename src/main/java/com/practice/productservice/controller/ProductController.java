@@ -7,7 +7,6 @@ import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.response.ProductResponseForPage;
-import com.practice.productservice.response.UploadImageResponse;
 import com.practice.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -84,6 +81,7 @@ public class ProductController {
             @RequestBody @Valid UpdateProductRequest updateProductRequest) {
         return productService.update(id, updateProductRequest);
     }
+
     //todo uri
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
