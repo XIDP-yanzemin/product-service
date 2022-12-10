@@ -18,7 +18,6 @@ import com.practice.productservice.request.BaseProductRequest;
 import com.practice.productservice.request.UpdateProductRequest;
 import com.practice.productservice.response.CommonPageModel;
 import com.practice.productservice.response.ProductResponseForPage;
-import com.practice.productservice.response.UploadImageResponse;
 import com.practice.productservice.util.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +29,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,11 +54,6 @@ public class ProductService {
 
     private final UserProductRelationRepository userProductRelationRepository;
 
-    @Value("${spring.servlet.multipart.max-file-size}")
-    private Long maxSize;
-
-    @Value("${file-save-path}")
-    private String fileSavePath;
 
     public CommonPageModel<ProductResponseForPage> list(Pageable pageable, Type type) {
         if (Objects.isNull(type)) {
@@ -92,46 +81,6 @@ public class ProductService {
         productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         imageRepository.deleteByProductId(productId);
         productRepository.deleteById(productId);
-    }
-
-    //todo 这个方法和 ProductService 是不是没关系...不应该在这个 service 里
-    public UploadImageResponse upload(HttpServletRequest request, MultipartFile[] files) throws BusinessException {
-        List<String> responses = new ArrayList<>();
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                throw new BusinessException(ErrorCode.IMAGE_EMPTY_EXCEPTION);
-            }
-            System.out.println(file.getSize());
-            if (file.getSize() > maxSize) {
-                throw new BusinessException(ErrorCode.IMAGE_SIZE_EXCEPTION);
-            }
-            if (!Constant.IMAGE_TYPES.contains(file.getContentType())) {
-                throw new BusinessException(ErrorCode.IMAGE_TYPE_EXCEPTION);
-            }
-
-            File dir = new File(fileSavePath);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            log.info("图片上传，保存位置：" + fileSavePath);
-
-            String suffix = Objects.requireNonNull(file.getOriginalFilename()).trim().substring(file.getOriginalFilename().lastIndexOf("."));
-            String newFileName = UUID.randomUUID().toString().replaceAll("-", "") + suffix;
-
-            File dest = new File(dir, newFileName);
-            try {
-                file.transferTo(dest);
-            } catch (IllegalStateException e) {
-                throw new BusinessException(ErrorCode.IMAGE_STATE_EXCEPTION);
-            } catch (IOException e) {
-                log.info(e.getMessage());
-                throw new BusinessException(ErrorCode.IMAGE_UPLOAD_EXCEPTION);
-            }
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/" + newFileName;
-            responses.add(url);
-        }
-
-        return new UploadImageResponse(responses);
     }
 
     public ProductResponseForPage add(String token, AddProductRequest addProductRequest) {

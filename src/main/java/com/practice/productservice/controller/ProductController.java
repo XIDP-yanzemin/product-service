@@ -59,14 +59,6 @@ public class ProductController {
         productService.remove(id);
     }
 
-    //todo product controller 应该包含这个 api 嘛？
-    @PostMapping("/image")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UploadImageResponse uploadImage(HttpServletRequest request,
-                                           @RequestParam("image") MultipartFile[] files) {
-        return productService.upload(request, files);
-    }
-
     @PostMapping("/sell-item")
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponseForPage addNewProduct(
