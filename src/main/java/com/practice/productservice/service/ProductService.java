@@ -74,11 +74,14 @@ public class ProductService {
     }
 
     @Transactional
-    public void remove(Long productId) {
-        //todo 谁都可以 remove 嘛？ remove 之后其他用户如果收藏了该商品，会发生什么...
-        productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        imageRepository.deleteByProductId(productId);
+    public void remove(String token, Long productId) {
+        ListUserResponse user = userFeignService.getUserById(jwtService.decodeIdFromJwt(token));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        if (!product.getUserId().equals(user.getId())){
+            throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
+        }
         productRepository.deleteById(productId);
+        userProductRelationRepository.deleteAllByProductId(productId);
     }
 
     public void add(String token, AddProductRequest addProductRequest) {

@@ -13,4 +13,6 @@ public interface UserProductRelationRepository extends JpaRepository<UserProduct
     Optional<UserProductRelation> findByUserIdAndProductId(Long userId, Long productId);
 
     List<UserProductRelation> findByUserId(Long userId);
+
+    void deleteAllByProductId(Long productId);
 }

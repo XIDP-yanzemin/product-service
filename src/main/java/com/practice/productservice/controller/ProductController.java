@@ -51,8 +51,10 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeProduct(@PathVariable Long id) {
-        productService.remove(id);
+    public void removeProduct(
+            @RequestHeader String token,
+            @PathVariable Long id) {
+        productService.remove(token, id);
     }
 
     @PostMapping("/sell-item")
