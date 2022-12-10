@@ -9,11 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -41,8 +38,6 @@ public class ProductResponseForPage {
 
     private Integer amount;
 
-    //todo 为撒加这个注解？
-    @Enumerated(EnumType.STRING)
     private Type type;
 
     private List<Image> urls;
