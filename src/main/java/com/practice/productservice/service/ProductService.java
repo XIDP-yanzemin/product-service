@@ -131,6 +131,19 @@ public class ProductService {
         sendEmailToEmailReceiver(token, productId, Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
     }
 
+
+    private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {
+        List<Long> userIdList = products.map(Product::getUserId).toList();
+        List<ListUserResponse> users = userFeignService.getUsersByIdList(userIdList);
+        List<ProductResponseForPage> responses = products.stream().
+                map(product -> ProductResponseForPage.buildProductResponseForPageFrom(
+                        product, users.stream().filter(user -> user.getId().equals(product.getUserId()))
+                                .collect(Collectors.toList())
+                                .get(0)))
+                .collect(Collectors.toList());
+        return CommonPageModel.from(products, pageable, responses);
+    }
+
     private void sendEmailToEmailReceiver(String token, Long productId, String buySubject, String buyEmailBody) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         Long userId = jwtService.decodeIdFromJwt(token);
