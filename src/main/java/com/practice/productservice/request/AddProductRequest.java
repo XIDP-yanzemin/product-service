@@ -15,5 +15,5 @@ import java.util.List;
 public class AddProductRequest extends BaseProductRequest{
 
     @NotNull(message = "url should not be null.")
-    private List<String> urls;
+    private List<String> url;
 }
