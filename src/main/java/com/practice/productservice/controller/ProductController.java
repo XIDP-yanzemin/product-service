@@ -1,6 +1,5 @@
 package com.practice.productservice.controller;
 
-import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
 import com.practice.productservice.request.AddProductRequest;
 import com.practice.productservice.request.BaseProductRequest;
@@ -58,28 +57,28 @@ public class ProductController {
 
     @PostMapping("/sell-item")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponseForPage addNewProduct(
+    public void addNewProduct(
             @RequestHeader String token,
             @RequestBody @Valid AddProductRequest addProductRequest) {
-        return productService.add(token, addProductRequest);
+        productService.add(token, addProductRequest);
     }
 
     @PostMapping("/buy-item")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponseForPage addWantToBuyProduct(
+    public void addWantToBuyProduct(
             @RequestHeader String token,
             @RequestBody BaseProductRequest baseProductRequest
     ) {
-        return productService.addWantToBuyProduct(token, baseProductRequest);
+        productService.addWantToBuyProduct(token, baseProductRequest);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     // todo; support update image? 更新 image 和创建产品是不是一样的...
-    public Product updateProductInfo(
+    public void updateProductInfo(
             @PathVariable Long id,
             @RequestBody @Valid UpdateProductRequest updateProductRequest) {
-        return productService.update(id, updateProductRequest);
+        productService.update(id, updateProductRequest);
     }
 
     @PostMapping("/add-favorites")

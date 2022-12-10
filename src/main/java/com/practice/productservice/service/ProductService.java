@@ -81,39 +81,21 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 
-    public ProductResponseForPage add(String token, AddProductRequest addProductRequest) {
+    public void add(String token, AddProductRequest addProductRequest) {
         Long userId = jwtService.decodeIdFromJwt(token);
         ListUserResponse user = userFeignService.getUserById(userId);
-        List<String> urls = addProductRequest.getUrls();
+        List<String> urls = addProductRequest.getUrl();
+        List<Image> imageList = urls.stream().map(url -> imageRepository.save(Image.builder().url(url).build())).collect(Collectors.toList());
 
-        Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
-        urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
+        productRepository.save(Product.buildProductFrom(user, addProductRequest, imageList));
         //todo token 里有用户 id 不需要再查询一次了... 添加/更新/删除 是可以不需要返回值 response 的
-        return ProductResponseForPage.from(user, urls, product);
     }
 
-    public Product update(Long id, UpdateProductRequest updateProductRequest) {
+    public void update(Long id, UpdateProductRequest updateProductRequest) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         //todo 自己更新自己为撒还需要把自己当作参数传进去？
         product.updateProductInfo(updateProductRequest, product);
-        return productRepository.save(product);
-    }
-
-    private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {
-        List<Long> idList = products.stream().map(Product::getId).collect(Collectors.toList());
-        //todo 这如果是 1-n 是不是就不需要单独再查一次 image 了？
-        List<Image> imageList = imageRepository.findByProductIdIn(idList);
-        //todo 是不是可以使用 Stream.Map
-        List<ProductResponseForPage> responses = new ArrayList<>();
-        for (Product product : products) {
-            //todo 不要再 for 中做 IO 操作 网络/DB ... 效率很低，考虑批量查询
-            ListUserResponse user = userFeignService.getUserById(product.getUserId());
-
-            ProductResponseForPage productResponse = ProductResponseForPage
-                    .buildProductResponseForPageFrom(imageList, product, user);
-            responses.add(productResponse);
-        }
-        return CommonPageModel.from(products, pageable, responses);
+        productRepository.save(product);
     }
 
     public void favorite(String token, Long id) {
@@ -132,12 +114,10 @@ public class ProductService {
         userProductRelationRepository.deleteById(relation.getId());
     }
 
-    public ProductResponseForPage addWantToBuyProduct(String token, BaseProductRequest baseProductRequest) {
+    public void addWantToBuyProduct(String token, BaseProductRequest baseProductRequest) {
         Long userId = jwtService.decodeIdFromJwt(token);
-        ListUserResponse user = userFeignService.getUserById(userId);
         Product product = Product.buildProductFrom(baseProductRequest, userId);
         productRepository.save(product);
-        return ProductResponseForPage.from(user, Collections.emptyList(), product);
     }
 
     public void buyProduct(String token, Long productId) {
@@ -152,7 +132,7 @@ public class ProductService {
     private void sendEmailToEmailReceiver(String token, Long productId, String buySubject, String buyEmailBody) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         Long userId = jwtService.decodeIdFromJwt(token);
-        if(!product.getUserId().equals(userId)){
+        if (!product.getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
         }
         ListUserResponse contactor = userFeignService.getUserById(userId);
