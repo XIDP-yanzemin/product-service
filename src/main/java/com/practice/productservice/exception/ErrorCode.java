@@ -21,6 +21,8 @@ public enum ErrorCode {
     // product exception
     PRODUCT_NOT_FOUND("product not exists."),
 
-    PRODUCT_OWNER_EXCEPTION("Selected product is not owned by this user.");
+    PRODUCT_OWNER_EXCEPTION("Selected product is not owned by this user."),
+
+    DUPLICATED_FAVORITE("product has been marked as favorite.");
     public final String message;
 }

@@ -100,8 +100,10 @@ public class ProductService {
 
     public void favorite(String token, Long id) {
         Long userId = jwtService.decodeIdFromJwt(token);
-        //todo 如果已经添加收藏 还能继续添加嘛？
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        if (userProductRelationRepository.findByUserIdAndProductId(userId, product.getId()).isPresent()) {
+            throw new BusinessException(ErrorCode.DUPLICATED_FAVORITE);
+        }
         userProductRelationRepository.save(UserProductRelation.buildUserProductRelation(userId, product.getId()));
     }
 
