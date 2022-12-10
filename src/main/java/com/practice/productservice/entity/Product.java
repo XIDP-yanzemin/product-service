@@ -10,13 +10,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity(name = "products")
 @Getter
@@ -44,7 +49,11 @@ public class Product {
     private Type type;
     //todo 在这种场景下，一般会在查询 product 的时候机会一起把 image 一起查询出来，所以会把 1-n 放在 product 里面
 
-    public static Product buildProductFrom(ListUserResponse user, AddProductRequest addProductRequest) {
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    private List<Image> imageList;
+
+    public static Product buildProductFrom(ListUserResponse user, AddProductRequest addProductRequest, List<Image> imageList ) {
         return builder()
                 .productName(addProductRequest.getName())
                 .price(addProductRequest.getPrice())
@@ -52,6 +61,7 @@ public class Product {
                 .amount(addProductRequest.getAmount())
                 .type(addProductRequest.getType())
                 .userId(user.getId())
+                .imageList(imageList)
                 .build();
     }
 

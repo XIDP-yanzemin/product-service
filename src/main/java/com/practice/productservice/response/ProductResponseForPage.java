@@ -45,27 +45,9 @@ public class ProductResponseForPage {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    private List<String> urls;
+    private List<Image> urls;
 
-    public static ProductResponseForPage from(ListUserResponse user, List<String> urls, Product product) {
-        return builder()
-                .id(product.getId())
-                .userId(user.getId())
-                .userName(user.getUsername())
-                .email(user.getEmail())
-                .cellphone(user.getCellphone())
-                .address(user.getAddress())
-                .productName(product.getProductName())
-                .price(product.getPrice())
-                .description(product.getDescription())
-                .amount(product.getAmount())
-                .type(product.getType())
-                .urls(urls)
-                .build();
-    }
-
-    public static ProductResponseForPage buildProductResponseForPageFrom(List<Image> imageList,
-                                                                         Product product,
+    public static ProductResponseForPage buildProductResponseForPageFrom(Product product,
                                                                          ListUserResponse user) {
         return builder()
                 .id(product.getId())
@@ -79,10 +61,7 @@ public class ProductResponseForPage {
                 .price(product.getPrice())
                 .amount(product.getAmount())
                 .type(product.getType())
-                .urls(imageList.stream()
-                        .filter(image -> image.getProduct().getId().equals(product.getId()))
-                        .map(Image::getUrl)
-                        .collect(Collectors.toList()))
+                .urls(product.getImageList())
                 .build();
     }
 }
