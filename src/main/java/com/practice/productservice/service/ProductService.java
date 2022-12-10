@@ -77,6 +77,7 @@ public class ProductService {
 
     public CommonPageModel<ProductResponseForPage> listFavoriteProducts(Pageable pageable, String token) {
         ListUserResponse user = userFeignService.getUserById(jwtService.decodeIdFromJwt(token));
+        //token 里面不是有 id 嘛？为什么还需要再冲 user-service 里面获取 user 呢？
         List<Long> idList = userProductRelationRepository.findByUserId(user.getId())
                 .stream()
                 .map(UserProductRelation::getProductId)
@@ -87,11 +88,13 @@ public class ProductService {
 
     @Transactional
     public void remove(Long productId) {
+        //todo 谁都可以 remove 嘛？ remove 之后其他用户如果收藏了该商品，会发生什么...
         productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         imageRepository.deleteByProductId(productId);
         productRepository.deleteById(productId);
     }
 
+    //todo 这个方法和 ProductService 是不是没关系...不应该在这个 service 里
     public UploadImageResponse upload(HttpServletRequest request, MultipartFile[] files) throws BusinessException {
         List<String> responses = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -138,22 +141,25 @@ public class ProductService {
 
         Product product = productRepository.save(Product.buildProductFrom(user, addProductRequest));
         urls.stream().map(url -> Image.relateUrlToProduct(product, url)).forEach(imageRepository::save);
-
+        //todo token 里有用户 id 不需要再查询一次了... 添加/更新/删除 是可以不需要返回值 response 的
         return ProductResponseForPage.from(user, urls, product);
     }
 
     public Product update(Long id, UpdateProductRequest updateProductRequest) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        //todo 自己更新自己为撒还需要把自己当作参数传进去？
         product.updateProductInfo(updateProductRequest, product);
         return productRepository.save(product);
     }
 
     private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {
         List<Long> idList = products.stream().map(Product::getId).collect(Collectors.toList());
+        //todo 这如果是 1-n 是不是就不需要单独再查一次 image 了？
         List<Image> imageList = imageRepository.findByProductIdIn(idList);
-
+        //todo 是不是可以使用 Stream.Map
         List<ProductResponseForPage> responses = new ArrayList<>();
         for (Product product : products) {
+            //todo 不要再 for 中做 IO 操作 网络/DB ... 效率很低，考虑批量查询
             ListUserResponse user = userFeignService.getUserById(product.getUserId());
 
             ProductResponseForPage productResponse = ProductResponseForPage
@@ -165,6 +171,7 @@ public class ProductService {
 
     public void favorite(String token, Long id) {
         Long userId = jwtService.decodeIdFromJwt(token);
+        //todo 如果已经添加收藏 还能继续添加嘛？
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         userProductRelationRepository.save(UserProductRelation.buildUserProductRelation(userId, product.getId()));
     }

@@ -41,6 +41,7 @@ public class ProductResponseForPage {
 
     private Integer amount;
 
+    //todo 为撒加这个注解？
     @Enumerated(EnumType.STRING)
     private Type type;
 

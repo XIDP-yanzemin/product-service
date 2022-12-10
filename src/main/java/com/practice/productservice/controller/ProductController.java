@@ -48,6 +48,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public CommonPageModel<ProductResponseForPage> listFavoriteProducts(
             @PageableDefault Pageable pageable,
+            //todo token 转成 UserDto
             @RequestHeader String token) {
         return productService.listFavoriteProducts(pageable, token);
     }
@@ -58,6 +59,7 @@ public class ProductController {
         productService.remove(id);
     }
 
+    //todo product controller 应该包含这个 api 嘛？
     @PostMapping("/image")
     @ResponseStatus(HttpStatus.CREATED)
     public UploadImageResponse uploadImage(HttpServletRequest request,
@@ -84,13 +86,13 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    // todo; support update image?
+    // todo; support update image? 更新 image 和创建产品是不是一样的...
     public Product updateProductInfo(
             @PathVariable Long id,
             @RequestBody @Valid UpdateProductRequest updateProductRequest) {
         return productService.update(id, updateProductRequest);
     }
-
+    //todo uri
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public void favoriteProduct(
@@ -99,6 +101,7 @@ public class ProductController {
         productService.favorite(token, id);
     }
 
+    //todo uri
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFavoriteProductById(

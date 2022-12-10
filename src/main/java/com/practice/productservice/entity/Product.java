@@ -42,6 +42,7 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     private Type type;
+    //todo 在这种场景下，一般会在查询 product 的时候机会一起把 image 一起查询出来，所以会把 1-n 放在 product 里面
 
     public static Product buildProductFrom(ListUserResponse user, AddProductRequest addProductRequest) {
         return builder()

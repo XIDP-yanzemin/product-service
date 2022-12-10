@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface UserFeignService {
 
     //fix bug：need login
+    //todo 不需要加 /client 和普通的 API 没有区别
     @RequestMapping(method = RequestMethod.GET, path = "/client/{id}")
     ListUserResponse getUserById(@PathVariable Long id);
 }
