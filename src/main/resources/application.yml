@@ -5,6 +5,7 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+      ddl-auto: update
     open-in-view: true
     show-sql: true
   datasource:
@@ -33,4 +34,13 @@ spring:
             enable: true
             required: true
           auth: true
+  hystrix:
+    command:
+      default:
+        execution:
+          isolation:
+            strategy: SEMAPHORE
+            thread:
+              timeoutInMilliseconds: 10000
+
 

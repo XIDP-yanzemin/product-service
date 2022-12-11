@@ -10,14 +10,8 @@ import com.practice.productservice.entity.UserProductRelation;
 import com.practice.productservice.exception.BusinessException;
 import com.practice.productservice.exception.ErrorCode;
 import com.practice.productservice.exception.ProductNotFound;
-import com.practice.productservice.repository.ImageRepository;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.repository.UserProductRelationRepository;
-import com.practice.productservice.request.AddProductRequest;
-import com.practice.productservice.request.BaseProductRequest;
-import com.practice.productservice.request.UpdateProductRequest;
-import com.practice.productservice.response.CommonPageModel;
-import com.practice.productservice.response.ProductResponseForPage;
 import com.practice.productservice.util.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,10 +56,8 @@ public class ProductService {
         return getCommonPageModel(pageable, listByType);
     }
 
-    public CommonPageModel<ProductResponseForPage> listFavoriteProducts(Pageable pageable, String token) {
-        ListUserResponse user = userFeignService.getUserById(jwtService.decodeIdFromJwt(token));
-        //token 里面不是有 id 嘛？为什么还需要再冲 user-service 里面获取 user 呢？
-        List<Long> idList = userProductRelationRepository.findByUserId(user.getId())
+    public CommonPageModel<ProductResponseForPage> listFavoriteProducts(Pageable pageable, UserDto userDto) {
+        List<Long> idList = userProductRelationRepository.findByUserId(userDto.getUserId())
                 .stream()
                 .map(UserProductRelation::getProductId)
                 .collect(Collectors.toList());
@@ -74,8 +66,8 @@ public class ProductService {
     }
 
     @Transactional
-    public void remove(String token, Long productId) {
-        ListUserResponse user = userFeignService.getUserById(jwtService.decodeIdFromJwt(token));
+    public void remove(UserDto userDto, Long productId) {
+        ListUserResponse user = userFeignService.getUserById(userDto.getUserId());
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         if (!product.getUserId().equals(user.getId())){
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
@@ -84,12 +76,11 @@ public class ProductService {
         userProductRelationRepository.deleteAllByProductId(productId);
     }
 
-    public void add(String token, AddProductRequest addProductRequest) {
-        Long userId = jwtService.decodeIdFromJwt(token);
-        ListUserResponse user = userFeignService.getUserById(userId);
+    public void add(UserDto userDto, AddProductRequest addProductRequest) {
+        ListUserResponse user = userFeignService.getUserById(userDto.getUserId());
         List<String> urls = addProductRequest.getUrl();
-        List<Image> imageList = urls.stream().map(url -> imageRepository.save(Image.builder().url(url).build())).collect(Collectors.toList());
-
+        List<Image> imageList = urls.stream().map(url -> Image.builder().url(url).build()).collect(Collectors.toList());
+        //只要将product构造出来，保存即可，不用单独保存image
         productRepository.save(Product.buildProductFrom(user, addProductRequest, imageList));
         //todo token 里有用户 id 不需要再查询一次了... 添加/更新/删除 是可以不需要返回值 response 的
     }
@@ -125,13 +116,13 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public void buyProduct(String token, Long productId) {
-        sendEmailToEmailReceiver(token, productId, Constant.BUY_SUBJECT, Constant.BUY_EMAIL_BODY);
+    public void buyProduct(UserDto userDto, Long productId) {
+        sendEmailToEmailReceiver(userDto, productId, Constant.BUY_SUBJECT, Constant.BUY_EMAIL_BODY);
     }
 
 
-    public void sellProduct(String token, Long productId) {
-        sendEmailToEmailReceiver(token, productId, Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
+    public void sellProduct(UserDto userDto, Long productId) {
+        sendEmailToEmailReceiver(userDto, productId, Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
     }
 
 
@@ -147,9 +138,9 @@ public class ProductService {
         return CommonPageModel.from(products, pageable, responses);
     }
 
-    private void sendEmailToEmailReceiver(String token, Long productId, String buySubject, String buyEmailBody) {
+    private void sendEmailToEmailReceiver(UserDto userDto, Long productId, String buySubject, String buyEmailBody) {
+        Long userId = userDto.getUserId();
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        Long userId = jwtService.decodeIdFromJwt(token);
         if (!product.getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
         }

@@ -40,29 +40,28 @@ public class ProductController {
         return productService.list(pageable, type);
     }
 
-    @GetMapping("/list-favorites")
+    @GetMapping("/favorites")
     @ResponseStatus(HttpStatus.OK)
     public CommonPageModel<ProductResponseForPage> listFavoriteProducts(
             @PageableDefault Pageable pageable,
-            //todo token 转成 UserDto
-            @RequestHeader String token) {
-        return productService.listFavoriteProducts(pageable, token);
+            @LoginUser UserDto userDto) {
+        return productService.listFavoriteProducts(pageable, userDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeProduct(
-            @RequestHeader String token,
+            @LoginUser UserDto userDto,
             @PathVariable Long id) {
-        productService.remove(token, id);
+        productService.remove(userDto, id);
     }
 
     @PostMapping("/sell-item")
     @ResponseStatus(HttpStatus.CREATED)
     public void addNewProduct(
-            @RequestHeader String token,
+            @LoginUser UserDto userDto,
             @RequestBody @Valid AddProductRequest addProductRequest) {
-        productService.add(token, addProductRequest);
+        productService.add(userDto, addProductRequest);
     }
 
     @PostMapping("/buy-item")
@@ -76,7 +75,6 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    // todo; support update image? 更新 image 和创建产品是不是一样的...
     public void updateProductInfo(
             @PathVariable Long id,
             @RequestBody @Valid UpdateProductRequest updateProductRequest) {
@@ -102,14 +100,14 @@ public class ProductController {
 
     @PostMapping("/buy-item/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    public void buyProduct(@RequestHeader String token, @PathVariable Long productId) {
-        productService.buyProduct(token, productId);
+    public void buyProduct(@LoginUser UserDto userDto, @PathVariable Long productId) {
+        productService.buyProduct(userDto, productId);
     }
 
     @PostMapping("/sell-item/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    public void sellProduct(@RequestHeader String token, @PathVariable Long productId) {
-        productService.sellProduct(token, productId);
+    public void sellProduct(@LoginUser UserDto userDto, @PathVariable Long productId) {
+        productService.sellProduct(userDto, productId);
     }
 
 }
