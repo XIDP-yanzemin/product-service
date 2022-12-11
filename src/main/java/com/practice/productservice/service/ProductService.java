@@ -155,12 +155,12 @@ public class ProductService {
         sendEmail(emailReceiver, buySubject, buyEmailBody, contactor);
     }
 
-    private void sendEmail(ListUserResponse emailReceiver, String subject, String x, ListUserResponse contactor) {
+    private void sendEmail(ListUserResponse emailReceiver, String subject, String text, ListUserResponse contactor) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(emailReceiver.getEmail());
         message.setSubject(subject);
-        message.setText(x + contactor.getEmail());
+        message.setText(text + contactor.getEmail());
         try {
             javaMailSender.send(message);
         } catch (MailSendException e) {
