@@ -12,7 +12,7 @@ import java.util.List;
 @FeignClient(name = "user-service", url = "http://localhost:8081/users", configuration={FeignInterceptor.class})
 public interface UserFeignService {
 
-    @RequestMapping(method = RequestMethod.POST, path = "/{id}")
+    @RequestMapping(method = RequestMethod.GET, path = "/{id}")
     ListUserResponse getUserById(@PathVariable Long id);
 
     @RequestMapping(method = RequestMethod.POST, path = "/query")
