@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -73,16 +72,15 @@ public class ProductController {
         productService.update(id, updateProductRequest);
     }
 
-    @PostMapping("/add-favorites")
+    @PostMapping("/favorites")
     @ResponseStatus(HttpStatus.CREATED)
     public void favoriteProduct(
-            //todo: UserDto
-            @RequestHeader String token,
+            @LoginUser UserDto userDto,
             @RequestParam Long id) {
-        productService.favorite(token, id);
+        productService.favorite(userDto, id);
     }
 
-    @DeleteMapping("/remove-favorites")
+    @DeleteMapping("/favorites")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFavoriteProductById(
             @LoginUser UserDto userDto,

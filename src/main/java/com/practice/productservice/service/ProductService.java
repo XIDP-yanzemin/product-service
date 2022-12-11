@@ -17,7 +17,6 @@ import com.practice.productservice.exception.ErrorCode;
 import com.practice.productservice.exception.ProductNotFound;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.repository.UserProductRelationRepository;
-import com.practice.productservice.util.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +41,6 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     private final UserFeignService userFeignService;
-    private final JwtService jwtService;
 
     private final JavaMailSender javaMailSender;
 
@@ -95,15 +93,14 @@ public class ProductService {
 
     public void update(Long id, UpdateProductRequest updateProductRequest) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        //todo 自己更新自己为撒还需要把自己当作参数传进去？
         product.updateProduct(updateProductRequest);
         productRepository.save(product);
     }
 
-    public void favorite(String token, Long id) {
-        Long userId = jwtService.decodeIdFromJwt(token);
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        if (userProductRelationRepository.findByUserIdAndProductId(userId, product.getId()).isPresent()) {
+    public void favorite(UserDto userDto, Long productId) {
+        Long userId = userDto.getUserId();
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        if (userProductRelationRepository.findByUserIdAndProductId(userId, productId).isPresent()) {
             throw new BusinessException(ErrorCode.DUPLICATED_FAVORITE);
         }
         userProductRelationRepository.save(UserProductRelation.buildUserProductRelation(userId, product.getId()));
