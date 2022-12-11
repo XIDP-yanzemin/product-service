@@ -1,13 +1,12 @@
 package com.practice.productservice.controller;
 
 import com.practice.productservice.aspect.LoginUser;
-import com.practice.productservice.dto.UserDto;
-import com.practice.productservice.entity.Type;
 import com.practice.productservice.controller.request.AddProductRequest;
-import com.practice.productservice.controller.request.BaseProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
 import com.practice.productservice.controller.response.ProductResponseForPage;
+import com.practice.productservice.dto.UserDto;
+import com.practice.productservice.entity.Type;
 import com.practice.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -58,21 +57,12 @@ public class ProductController {
         productService.remove(userDto, id);
     }
 
-    @PostMapping("/sell-item")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void addNewProduct(
             @LoginUser UserDto userDto,
             @RequestBody @Valid AddProductRequest addProductRequest) {
         productService.add(userDto, addProductRequest);
-    }
-
-    @PostMapping("/buy-item")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addWantToBuyProduct(
-            @RequestHeader String token,
-            @RequestBody BaseProductRequest baseProductRequest
-    ) {
-        productService.addWantToBuyProduct(token, baseProductRequest);
     }
 
     @PutMapping("/{id}")
@@ -86,6 +76,7 @@ public class ProductController {
     @PostMapping("/add-favorites")
     @ResponseStatus(HttpStatus.CREATED)
     public void favoriteProduct(
+            //todo: UserDto
             @RequestHeader String token,
             @RequestParam Long id) {
         productService.favorite(token, id);
@@ -94,9 +85,9 @@ public class ProductController {
     @DeleteMapping("/remove-favorites")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFavoriteProductById(
-            @RequestHeader String token,
+            @LoginUser UserDto userDto,
             @RequestParam Long id) {
-        productService.removeFavorite(token, id);
+        productService.removeFavorite(userDto, id);
     }
 
 

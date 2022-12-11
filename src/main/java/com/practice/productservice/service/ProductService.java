@@ -4,7 +4,6 @@ import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.client.UserFeignService;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.request.AddProductRequest;
-import com.practice.productservice.controller.request.BaseProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
 import com.practice.productservice.controller.response.ProductResponseForPage;
@@ -30,6 +29,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -83,11 +83,14 @@ public class ProductService {
 
     public void add(UserDto userDto, AddProductRequest addProductRequest) {
         ListUserResponse user = userFeignService.getUserById(userDto.getUserId());
-        List<String> urls = addProductRequest.getUrl();
-        List<Image> imageList = urls.stream().map(url -> Image.builder().url(url).build()).collect(Collectors.toList());
-        //只要将product构造出来，保存即可，不用单独保存image
-        productRepository.save(Product.buildProductFrom(user, addProductRequest, imageList));
-        //todo token 里有用户 id 不需要再查询一次了... 添加/更新/删除 是可以不需要返回值 response 的
+        if (Objects.nonNull(addProductRequest.getUrl())) {
+            List<String> urls = addProductRequest.getUrl();
+            List<Image> imageList = urls.stream().map(url -> Image.builder().url(url).build()).collect(Collectors.toList());
+            productRepository.save(Product.buildProductFrom(user, addProductRequest, imageList));
+        } else {
+            Product product = Product.buildProductFrom(user, addProductRequest, Collections.emptyList());
+            productRepository.save(product);
+        }
     }
 
     public void update(Long id, UpdateProductRequest updateProductRequest) {
@@ -107,18 +110,11 @@ public class ProductService {
     }
 
     @Transactional
-    public void removeFavorite(String token, Long productId) {
-        Long userId = jwtService.decodeIdFromJwt(token);
+    public void removeFavorite(UserDto userDto, Long productId) {
         UserProductRelation relation = userProductRelationRepository
-                .findByUserIdAndProductId(userId, productId)
+                .findByUserIdAndProductId(userDto.getUserId(), productId)
                 .orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         userProductRelationRepository.deleteById(relation.getId());
-    }
-
-    public void addWantToBuyProduct(String token, BaseProductRequest baseProductRequest) {
-        Long userId = jwtService.decodeIdFromJwt(token);
-        Product product = Product.buildProductFrom(baseProductRequest, userId);
-        productRepository.save(product);
     }
 
     public void buyProduct(UserDto userDto, Long productId) {

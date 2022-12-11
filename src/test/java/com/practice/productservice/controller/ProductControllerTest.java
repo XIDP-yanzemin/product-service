@@ -4,9 +4,9 @@ package com.practice.productservice.controller;
 import com.practice.productservice.WebApplicationTest;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.entity.Type;
-import com.practice.productservice.request.AddProductRequest;
-import com.practice.productservice.request.BaseProductRequest;
-import com.practice.productservice.request.UpdateProductRequest;
+import com.practice.productservice.controller.request.AddProductRequest;
+import com.practice.productservice.controller.request.BaseProductRequest;
+import com.practice.productservice.controller.request.UpdateProductRequest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,7 +31,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class ProductControllerTest extends WebApplicationTest {
+class
+ProductControllerTest extends WebApplicationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -116,17 +117,13 @@ class ProductControllerTest extends WebApplicationTest {
                 .price(new BigDecimal(1000))
                 .amount(1000)
                 .type(Type.SPORTING_GOODS)
-                .urls(List.of("url"))
+                .url(List.of("url"))
                 .build();
-        mockMvc.perform(post("/products/sell-item")
+        mockMvc.perform(post("/products")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(addProductRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.productName").value("testName"))
-                .andExpect(jsonPath("$.type").value(Type.SPORTING_GOODS.toString()))
-                .andExpect(jsonPath("$.userId").isNotEmpty());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -173,15 +170,11 @@ class ProductControllerTest extends WebApplicationTest {
     void should_add_want_to_buy_product() throws Exception {
         BaseProductRequest baseProductRequest = new BaseProductRequest(
                 "want-to-buy product", "want to buy", new BigDecimal(666), 1, Type.BEAUTY);
-        mockMvc.perform(post("/products/buy-item")
+        mockMvc.perform(post("/products")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(baseProductRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.productName").value("want-to-buy product"))
-                .andExpect(jsonPath("$.type").value(Type.BEAUTY.toString()))
-                .andExpect(jsonPath("$.userId").isNotEmpty());
+                .andExpect(status().isCreated());
     }
 
     @Test
