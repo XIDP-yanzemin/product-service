@@ -14,6 +14,8 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    // todo:  add 401 exception handler
+
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -38,7 +40,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ErrorResult handle(BusinessException e){
+    public ErrorResult handle(BusinessException e) {
+        return new ErrorResult(e.getMessage());
+    }
+
+    @ExceptionHandler(UserAuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorResult handle(UserAuthenticationException e) {
         return new ErrorResult(e.getMessage());
     }
 }

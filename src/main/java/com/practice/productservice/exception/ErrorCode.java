@@ -23,6 +23,13 @@ public enum ErrorCode {
 
     PRODUCT_OWNER_EXCEPTION("Selected product is not owned by this user."),
 
-    DUPLICATED_FAVORITE("product has been marked as favorite.");
+    DUPLICATED_FAVORITE("product has been marked as favorite."),
+
+    //user authentication exception
+
+    NOT_LOG_IN_ERROR("Please log in first."),
+
+    TOKEN_EXPIRED_EXCEPTION("User token expired.");
+
     public final String message;
 }

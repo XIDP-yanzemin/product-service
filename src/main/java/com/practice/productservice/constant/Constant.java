@@ -1,9 +1,14 @@
 package com.practice.productservice.constant;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Constant {
+
+    public static final Instant INSTANT_NOW_AT_CURRENT_TIME_ZONE = Instant.now().plusMillis(TimeUnit.HOURS.toMillis(8));
+
     public static final List<String> IMAGE_TYPES = new ArrayList<>();
     public static final String SELL_SUBJECT = "Someone is interested in selling you the item";
     public static final String SELL_EMAIL_BODY = "Good news! Someone is interested in selling you the item you want. Please contact the seller through this email: ";
