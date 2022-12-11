@@ -16,6 +16,6 @@ public interface UserFeignService {
     @RequestMapping(method = RequestMethod.GET, path = "/client/{id}")
     ListUserResponse getUserById(@PathVariable Long id);
 
-    @RequestMapping(method = RequestMethod.GET, path = "/client/query")
+    @RequestMapping(method = RequestMethod.POST, path = "/client/query")
     List<ListUserResponse> getUsersByIdList(@RequestBody List<Long> idList);
 }

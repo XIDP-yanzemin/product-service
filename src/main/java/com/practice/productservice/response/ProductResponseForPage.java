@@ -40,7 +40,7 @@ public class ProductResponseForPage {
 
     private Type type;
 
-    private List<Image> urls;
+    private List<Image> imageList;
 
     public static ProductResponseForPage buildProductResponseForPageFrom(Product product,
                                                                          ListUserResponse user) {
@@ -56,7 +56,7 @@ public class ProductResponseForPage {
                 .price(product.getPrice())
                 .amount(product.getAmount())
                 .type(product.getType())
-                .urls(product.getImageList())
+                .imageList(product.getImageList())
                 .build();
     }
 }
