@@ -1,9 +1,9 @@
 package com.practice.productservice.entity;
 
 import com.practice.productservice.client.ListUserResponse;
-import com.practice.productservice.request.AddProductRequest;
-import com.practice.productservice.request.BaseProductRequest;
-import com.practice.productservice.request.UpdateProductRequest;
+import com.practice.productservice.controller.request.AddProductRequest;
+import com.practice.productservice.controller.request.BaseProductRequest;
+import com.practice.productservice.controller.request.UpdateProductRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,7 +47,6 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     private Type type;
-    //todo 在这种场景下，一般会在查询 product 的时候机会一起把 image 一起查询出来，所以会把 1-n 放在 product 里面
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
@@ -77,11 +76,11 @@ public class Product {
                 .build();
     }
 
-    public void updateProductInfo(UpdateProductRequest updateProductRequest, Product product) {
-        product.setProductName(updateProductRequest.getName());
-        product.setPrice(updateProductRequest.getPrice());
-        product.setAmount(updateProductRequest.getAmount());
-        product.setDescription(updateProductRequest.getDescription());
-        product.setType(updateProductRequest.getType());
+    public void updateProduct(UpdateProductRequest updateProductRequest) {
+        setProductName(updateProductRequest.getName());
+        setPrice(updateProductRequest.getPrice());
+        setAmount(updateProductRequest.getAmount());
+        setDescription(updateProductRequest.getDescription());
+        setType(updateProductRequest.getType());
     }
 }

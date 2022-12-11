@@ -1,11 +1,11 @@
 package com.practice.productservice.controller;
 
 import com.practice.productservice.entity.Type;
-import com.practice.productservice.request.AddProductRequest;
-import com.practice.productservice.request.BaseProductRequest;
-import com.practice.productservice.request.UpdateProductRequest;
-import com.practice.productservice.response.CommonPageModel;
-import com.practice.productservice.response.ProductResponseForPage;
+import com.practice.productservice.controller.request.AddProductRequest;
+import com.practice.productservice.controller.request.BaseProductRequest;
+import com.practice.productservice.controller.request.UpdateProductRequest;
+import com.practice.productservice.controller.response.CommonPageModel;
+import com.practice.productservice.controller.response.ProductResponseForPage;
 import com.practice.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

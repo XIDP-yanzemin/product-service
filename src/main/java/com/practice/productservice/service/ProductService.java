@@ -3,6 +3,12 @@ package com.practice.productservice.service;
 import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.client.UserFeignService;
 import com.practice.productservice.constant.Constant;
+import com.practice.productservice.controller.request.AddProductRequest;
+import com.practice.productservice.controller.request.BaseProductRequest;
+import com.practice.productservice.controller.request.UpdateProductRequest;
+import com.practice.productservice.controller.response.CommonPageModel;
+import com.practice.productservice.controller.response.ProductResponseForPage;
+import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
@@ -34,7 +40,6 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ImageRepository imageRepository;
 
     private final UserFeignService userFeignService;
     private final JwtService jwtService;
@@ -69,7 +74,7 @@ public class ProductService {
     public void remove(UserDto userDto, Long productId) {
         ListUserResponse user = userFeignService.getUserById(userDto.getUserId());
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        if (!product.getUserId().equals(user.getId())){
+        if (!product.getUserId().equals(user.getId())) {
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
         }
         productRepository.deleteById(productId);
@@ -88,7 +93,7 @@ public class ProductService {
     public void update(Long id, UpdateProductRequest updateProductRequest) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         //todo 自己更新自己为撒还需要把自己当作参数传进去？
-        product.updateProductInfo(updateProductRequest, product);
+        product.updateProduct(updateProductRequest);
         productRepository.save(product);
     }
 
