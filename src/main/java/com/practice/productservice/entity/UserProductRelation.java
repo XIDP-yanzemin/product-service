@@ -10,8 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-//todo 表名
-@Entity(name = "user_product_relation")
+@Entity(name = "user_product_favorite_relation")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
