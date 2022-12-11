@@ -1,6 +1,6 @@
 package com.practice.productservice.controller;
 
-import com.practice.productservice.response.UploadImageResponse;
+import com.practice.productservice.controller.response.UploadImageResponse;
 import com.practice.productservice.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

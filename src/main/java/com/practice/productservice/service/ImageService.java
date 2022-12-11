@@ -3,7 +3,7 @@ package com.practice.productservice.service;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.exception.BusinessException;
 import com.practice.productservice.exception.ErrorCode;
-import com.practice.productservice.response.UploadImageResponse;
+import com.practice.productservice.controller.response.UploadImageResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
