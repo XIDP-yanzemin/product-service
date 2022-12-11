@@ -1,4 +1,4 @@
-package com.practice.productservice.request;
+package com.practice.productservice.controller.request;
 
 
 import com.practice.productservice.entity.Type;

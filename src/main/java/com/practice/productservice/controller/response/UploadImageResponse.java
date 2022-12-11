@@ -1,4 +1,4 @@
-package com.practice.productservice.response;
+package com.practice.productservice.controller.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
