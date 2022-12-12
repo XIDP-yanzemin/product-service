@@ -5,11 +5,14 @@ import com.practice.productservice.client.UserFeignService;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
 import com.practice.productservice.controller.response.ProductResponseForPage;
+import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
+import com.practice.productservice.exception.ProductNotFound;
 import com.practice.productservice.interceptor.FeignInterceptor;
 import com.practice.productservice.repository.ProductRepository;
+import com.practice.productservice.repository.UserProductRelationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,7 +30,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +52,12 @@ public class ProductServiceTest {
     @Mock
     private UserFeignService userFeignService;
 
+    @Mock
+    private UserProductRelationRepository userProductRelationRepository;
+
+
     Product product = new Product();
+
     @BeforeEach
     void setUp() {
         Image image = Image.builder().id(1L).url("url").build();
@@ -61,7 +72,7 @@ public class ProductServiceTest {
     }
 
     @Nested
-    class ListProductsTest{
+    class ListProductsTest {
         @BeforeEach
         void setUp() {
             List<ListUserResponse> listUserResponse = List.of(new ListUserResponse(1L, "user", "test@gmail.com", "1234567890", "test address"));
@@ -112,60 +123,68 @@ public class ProductServiceTest {
     @Nested
     class DeleteProductTest {
 
+        UserDto userDto = new UserDto();
+        @BeforeEach
+        void setUp() {
+            userDto.setUserId(1L);
+        }
+
         @Test
         void given_product_id_then_remove_should_delete_product() {
-            Long id = 1L;
-            Product product = new Product(1L, 1L,"test1", new BigDecimal(10), "description", 10, Type.BEAUTY);
-            when(productRepository.findById(id)).thenReturn(Optional.of(product));
-            doNothing().when(imageRepository).deleteByProductId(id);
-            doNothing().when(productRepository).deleteById(id);
+            Long productId = 1L;
+            when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+            doNothing().when(productRepository).deleteById(productId);
+            doNothing().when(userProductRelationRepository).deleteAllByProductId(productId);
 
-            productService.remove(id);
+            productService.remove(userDto, productId);
 
-            verify(productRepository, times(1)).findById(id);
-            verify(productRepository, times(1)).deleteById(id);
-            verify(imageRepository, times(1)).deleteByProductId(id);
+            verify(productRepository, times(1)).findById(productId);
+            verify(productRepository, times(1)).deleteById(productId);
+            verify(userProductRelationRepository, times(1)).deleteAllByProductId(productId);
         }
 
         @Test
         void given_not_existed_id_then_remove_should_throw_exception() {
-            Long id = 100L;
+            Long nonexistentProductId = 100L;
 
-            when(productRepository.findById(id)).thenReturn(Optional.empty());
+            when(productRepository.findById(nonexistentProductId)).thenReturn(Optional.empty());
 
-            ProductNotFound exception = assertThrows(ProductNotFound.class, () -> productService.remove(id));
+            ProductNotFound exception = assertThrows(ProductNotFound.class, () -> productService.remove(userDto, nonexistentProductId));
             String message = exception.getMessage();
 
             assertTrue(message.contains("product not exists."));
-            verify(productRepository, times(1)).findById(id);
-            verify(productRepository, times(0)).deleteById(id);
-            verify(imageRepository, times(0)).deleteByProductId(id);
+            verify(productRepository, times(1)).findById(nonexistentProductId);
+            verify(productRepository, times(0)).deleteById(nonexistentProductId);
+            verify(userProductRelationRepository, times(0)).deleteAllByProductId(nonexistentProductId);
         }
-    }
 
-    @Test
-    void given_add_product_request_then_add_should_save_product_info() {
-        AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
-        Product product = Product.buildProductFrom(addProductRequest);
+//    @Test
+//    void given_add_product_request_then_add_should_save_product_info() {
+//        AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
+//        ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
+//        Product product = Product.buildProductFrom(user, addProductRequest);
+////        when(jwtService.decodeIdFromJwt("token")).thenReturn(1L);
+////        when(userFeignService.getUserById(1L)).thenReturn(user);
+//        when(productRepository.save(Product.buildProductFrom(user, addProductRequest))).thenReturn(product);
+//        when(imageRepository.save(any(Image.class))).thenReturn(null);
+//
+//        productService.add(any(String.class), addProductRequest);
+//
+//        verify(productRepository, times(1)).save(any(Product.class));
+//        verify(imageRepository, times(1)).save(any(Image.class));
+//    }
 
-        when(productRepository.save(any(Product.class))).thenReturn(product);
-        when(imageRepository.save(any(Image.class))).thenReturn(null);
+        @Test
+        void given_update_product_request_then_update_should_update_product_info() {
+            Image image = new Image(1L, "url");
+            Product product = new Product(1L, 1L, "product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS, List.of(image));
 
-        productService.add(addProductRequest);
+            UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
-        verify(productRepository, times(1)).save(any(Product.class));
-        verify(imageRepository, times(1)).save(any(Image.class));
-    }
+            productService.update(1L, updateProductRequest);
 
-    @Test
-    void given_update_product_request_then_update_should_update_product_info() {
-        Product product = new Product(1L, 1L,"product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS);
-
-        UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-
-        productService.update(1L, updateProductRequest);
-
-        verify(productRepository, times(1)).save(any(Product.class));
+            verify(productRepository, times(1)).save(any(Product.class));
+        }
     }
 }

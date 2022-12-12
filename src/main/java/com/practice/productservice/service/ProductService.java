@@ -70,9 +70,8 @@ public class ProductService {
 
     @Transactional
     public void remove(UserDto userDto, Long productId) {
-        ListUserResponse user = userFeignService.getUserById(userDto.getUserId());
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        if (!product.getUserId().equals(user.getId())) {
+        if (!product.getUserId().equals(userDto.getUserId())) {
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
         }
         productRepository.deleteById(productId);
