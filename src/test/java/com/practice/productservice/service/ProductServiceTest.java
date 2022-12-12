@@ -10,6 +10,7 @@ import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.UserProductRelation;
 import com.practice.productservice.exception.ProductNotFound;
 import com.practice.productservice.interceptor.FeignInterceptor;
 import com.practice.productservice.repository.ProductRepository;
@@ -55,6 +56,9 @@ public class ProductServiceTest {
 
     @Mock
     private UserProductRelationRepository userProductRelationRepository;
+
+    @Mock
+    private EmailService emailService;
 
 
     Image image = new Image();
@@ -162,62 +166,118 @@ public class ProductServiceTest {
             verify(productRepository, times(0)).deleteById(nonexistentProductId);
             verify(userProductRelationRepository, times(0)).deleteAllByProductId(nonexistentProductId);
         }
+    }
 
-        @Nested
-        class AddNewProductTest {
-            @Test
-            void given_add_product_request_then_add_should_save_product_info() {
-                AddProductRequest addProductRequest = AddProductRequest.builder()
-                        .name("testName")
-                        .description("")
-                        .price(new BigDecimal(10000))
-                        .amount(1)
-                        .type(Type.ART)
-                        .url(List.of("url"))
-                        .build();
-                ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
-                when(userFeignService.getUserById(1L)).thenReturn(user);
-                when(productRepository.save(any(Product.class))).thenReturn(null);
+    @Nested
+    class AddNewProductTest {
+        UserDto userDto = new UserDto();
 
-                productService.add(userDto, addProductRequest);
-
-                verify(userFeignService, times(1)).getUserById(1L);
-                verify(productRepository, times(1)).save(any(Product.class));
-            }
-
-            @Test
-            void given_base_product_request_then_add_should_save_product_info() {
-                AddProductRequest addProductRequest = AddProductRequest.builder()
-                        .name("testName")
-                        .description("")
-                        .price(new BigDecimal(10000))
-                        .amount(1)
-                        .type(Type.ART)
-                        .url(null)
-                        .build();
-                ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
-                when(userFeignService.getUserById(1L)).thenReturn(user);
-                when(productRepository.save(any(Product.class))).thenReturn(null);
-
-                productService.add(userDto, addProductRequest);
-
-                verify(userFeignService, times(1)).getUserById(1L);
-                verify(productRepository, times(1)).save(any(Product.class));
-            }
+        @BeforeEach
+        void setUp() {
+            userDto.setUserId(1L);
         }
-
 
         @Test
-        void given_update_product_request_then_update_should_update_product_info() {
-            Image image = new Image(1L, "url");
-            Product product = new Product(1L, 1L, "product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS, List.of(image));
+        void given_add_product_request_then_add_should_save_product_info() {
+            AddProductRequest addProductRequest = AddProductRequest.builder()
+                    .name("testName")
+                    .description("")
+                    .price(new BigDecimal(10000))
+                    .amount(1)
+                    .type(Type.ART)
+                    .url(List.of("url"))
+                    .build();
+            ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
+            when(userFeignService.getUserById(1L)).thenReturn(user);
+            when(productRepository.save(any(Product.class))).thenReturn(null);
 
-            UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
-            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+            productService.add(userDto, addProductRequest);
 
-            productService.update(1L, updateProductRequest);
-
+            verify(userFeignService, times(1)).getUserById(1L);
             verify(productRepository, times(1)).save(any(Product.class));
         }
+
+        @Test
+        void given_base_product_request_then_add_should_save_product_info() {
+            AddProductRequest addProductRequest = AddProductRequest.builder()
+                    .name("testName")
+                    .description("")
+                    .price(new BigDecimal(10000))
+                    .amount(1)
+                    .type(Type.ART)
+                    .url(null)
+                    .build();
+            ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
+            when(userFeignService.getUserById(1L)).thenReturn(user);
+            when(productRepository.save(any(Product.class))).thenReturn(null);
+
+            productService.add(userDto, addProductRequest);
+
+            verify(userFeignService, times(1)).getUserById(1L);
+            verify(productRepository, times(1)).save(any(Product.class));
+        }
+    }
+
+    @Test
+    void given_page_request_then_list_should_list_favorite_products() {
+        UserDto userDto = new UserDto(1L);
+        Pageable page = PageRequest.of(0, 2);
+        Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
+        List<ListUserResponse> listUserResponse = List.of(new ListUserResponse(1L, "user", "test@gmail.com", "1234567890", "test address"));
+        when(userFeignService.getUsersByIdList(List.of(1L))).thenReturn(listUserResponse);
+
+        UserProductRelation userProductRelation = new UserProductRelation(1L, 1L, 1L);
+        when(userProductRelationRepository.findByUserId(userDto.getUserId())).thenReturn(List.of(userProductRelation));
+        when(productRepository.findByIdIn(List.of(userProductRelation.getProductId()), page)).thenReturn(products);
+
+        CommonPageModel<ProductResponseForPage> responses = productService.listFavoriteProducts(page, userDto);
+
+        assertEquals(responses.getPageNumber(), 0);
+        assertEquals(responses.getPageSize(), 2);
+        assertEquals(responses.getNumberOfElements(), 1);
+        assertEquals(responses.getContent().get(0).getId(), product.getId());
+        assertEquals(responses.getContent().get(0).getUserId(), userDto.getUserId());
+
+        verify(userProductRelationRepository, times(1)).findByUserId(userDto.getUserId());
+        verify(productRepository, times(1)).findByIdIn(List.of(userProductRelation.getProductId()), page);
+    }
+
+
+    @Test
+    void given_update_product_request_then_update_should_update_product_info() {
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        productService.update(1L, updateProductRequest);
+
+        verify(productRepository, times(1)).save(any(Product.class));
+    }
+
+    @Test
+    void given_product_id_then_favorite_should_add_product_to_favorite() {
+        UserDto userDto = new UserDto(1L);
+        UserProductRelation userProductRelation = new UserProductRelation(1L, 1L, 1L);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(userProductRelationRepository.findByUserIdAndProductId(1L, 1L)).thenReturn(Optional.of(userProductRelation));
+        when(userProductRelationRepository.save(userProductRelation)).thenReturn(null);
+
+        productService.favorite(userDto, 1L);
+
+        verify(productRepository, times(1)).findById(1L);
+        verify(userProductRelationRepository, times(1)).findByUserIdAndProductId(1L, 1L);
+        verify(userProductRelationRepository, times(1)).save(userProductRelation);
+    }
+
+    @Test
+    void given_product_id_then_remove_favorite_should_remove_user_product_relation() {
+        UserDto userDto = new UserDto(1L);
+        UserProductRelation userProductRelation = new UserProductRelation(1L, 1L, 1L);
+        when(userProductRelationRepository.findByUserIdAndProductId(1L, 1L)).thenReturn(Optional.of(userProductRelation));
+        doNothing().when(userProductRelationRepository).deleteById(1L);
+
+        productService.removeFavorite(userDto, 1L);
+
+        verify(userProductRelationRepository, times(1)).findByUserIdAndProductId(1L, 1L);
+        verify(userProductRelationRepository, times(1)).deleteById(1L);
     }
 }
