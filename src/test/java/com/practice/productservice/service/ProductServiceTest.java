@@ -46,6 +46,20 @@ public class ProductServiceTest {
     @Mock
     private UserFeignService userFeignService;
 
+    Product product = new Product();
+    @BeforeEach
+    void setUp() {
+        Image image = Image.builder().id(1L).url("url").build();
+        product.setId(1L);
+        product.setUserId(1L);
+        product.setProductName("product1");
+        product.setPrice(new BigDecimal(1000));
+        product.setDescription("");
+        product.setAmount(1000);
+        product.setType(Type.SPORTING_GOODS);
+        product.setImageList(List.of(image));
+    }
+
     @Nested
     class ListProductsTest{
         @BeforeEach
@@ -56,9 +70,6 @@ public class ProductServiceTest {
 
         @Test
         void given_page_number_and_size_then_list_should_return_products_by_page() {
-            Image image = new Image(1L, "url");
-            Product product = new Product(1L, 1L, "product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS, List.of(image));
-
             Pageable page = PageRequest.of(0, 2);
 
             Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
@@ -78,9 +89,6 @@ public class ProductServiceTest {
 
         @Test
         void given_page_request_and_type_then_list_should_return_products_info() {
-            Image image = new Image(1L, "url");
-            Product product = new Product(1L, 1L, "product1", new BigDecimal(1000), "", 1000, Type.SPORTING_GOODS, List.of(image));
-
             Pageable page = PageRequest.of(0, 2);
             Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
 
