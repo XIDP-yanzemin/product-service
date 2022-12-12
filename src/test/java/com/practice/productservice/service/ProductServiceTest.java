@@ -2,6 +2,7 @@ package com.practice.productservice.service;
 
 import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.client.UserFeignService;
+import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
 import com.practice.productservice.controller.response.ProductResponseForPage;
@@ -56,11 +57,14 @@ public class ProductServiceTest {
     private UserProductRelationRepository userProductRelationRepository;
 
 
+    Image image = new Image();
     Product product = new Product();
 
     @BeforeEach
     void setUp() {
-        Image image = Image.builder().id(1L).url("url").build();
+        image.setId(1L);
+        image.setUrl("url");
+
         product.setId(1L);
         product.setUserId(1L);
         product.setProductName("product1");
@@ -124,6 +128,7 @@ public class ProductServiceTest {
     class DeleteProductTest {
 
         UserDto userDto = new UserDto();
+
         @BeforeEach
         void setUp() {
             userDto.setUserId(1L);
@@ -158,21 +163,49 @@ public class ProductServiceTest {
             verify(userProductRelationRepository, times(0)).deleteAllByProductId(nonexistentProductId);
         }
 
-//    @Test
-//    void given_add_product_request_then_add_should_save_product_info() {
-//        AddProductRequest addProductRequest = new AddProductRequest("testName", "", new BigDecimal(1000), 1000, Type.SPORTING_GOODS, List.of("url"));
-//        ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
-//        Product product = Product.buildProductFrom(user, addProductRequest);
-////        when(jwtService.decodeIdFromJwt("token")).thenReturn(1L);
-////        when(userFeignService.getUserById(1L)).thenReturn(user);
-//        when(productRepository.save(Product.buildProductFrom(user, addProductRequest))).thenReturn(product);
-//        when(imageRepository.save(any(Image.class))).thenReturn(null);
-//
-//        productService.add(any(String.class), addProductRequest);
-//
-//        verify(productRepository, times(1)).save(any(Product.class));
-//        verify(imageRepository, times(1)).save(any(Image.class));
-//    }
+        @Nested
+        class AddNewProductTest {
+            @Test
+            void given_add_product_request_then_add_should_save_product_info() {
+                AddProductRequest addProductRequest = AddProductRequest.builder()
+                        .name("testName")
+                        .description("")
+                        .price(new BigDecimal(10000))
+                        .amount(1)
+                        .type(Type.ART)
+                        .url(List.of("url"))
+                        .build();
+                ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
+                when(userFeignService.getUserById(1L)).thenReturn(user);
+                when(productRepository.save(any(Product.class))).thenReturn(null);
+
+                productService.add(userDto, addProductRequest);
+
+                verify(userFeignService, times(1)).getUserById(1L);
+                verify(productRepository, times(1)).save(any(Product.class));
+            }
+
+            @Test
+            void given_base_product_request_then_add_should_save_product_info() {
+                AddProductRequest addProductRequest = AddProductRequest.builder()
+                        .name("testName")
+                        .description("")
+                        .price(new BigDecimal(10000))
+                        .amount(1)
+                        .type(Type.ART)
+                        .url(null)
+                        .build();
+                ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
+                when(userFeignService.getUserById(1L)).thenReturn(user);
+                when(productRepository.save(any(Product.class))).thenReturn(null);
+
+                productService.add(userDto, addProductRequest);
+
+                verify(userFeignService, times(1)).getUserById(1L);
+                verify(productRepository, times(1)).save(any(Product.class));
+            }
+        }
+
 
         @Test
         void given_update_product_request_then_update_should_update_product_info() {
