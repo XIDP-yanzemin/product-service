@@ -20,7 +20,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         String url = request.getRequestURI();
 
-        if (url.contains("/login") || url.contains("/signup") || url.contains("/verification") || url.contains("/logout") || url.contains("/client")) {
+        if (url.contains("/login") || url.contains("/signup") || url.contains("/verification") || url.contains("/logout")) {
             return true;
         }
 

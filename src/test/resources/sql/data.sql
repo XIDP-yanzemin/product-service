@@ -6,5 +6,5 @@ INSERT INTO products (id, user_id, product_name, price, description, amount, typ
 VALUES (3, 1, 'xxx', 30, 'xxx', 3, 'ELECTRONICS');
 INSERT INTO products (id, user_id, product_name, price, description, amount, type)
 VALUES (4, 1, 'xxx', 40, 'xxx', 4, 'OTHERS');
-INSERT INTO user_product_relation (id, user_id, product_id)
-VALUES (1, 2, 1);
+INSERT INTO user_product_favorite_relation (id, user_id, product_id)
+VALUES (1, 1, 1);

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/product-service/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
 
@@ -48,11 +48,11 @@ public class ProductController {
         return productService.listFavoriteProducts(pageable, userDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeProduct(
             @LoginUser UserDto userDto,
-            @PathVariable Long id) {
+            @RequestParam Long id) {
         productService.remove(userDto, id);
     }
 

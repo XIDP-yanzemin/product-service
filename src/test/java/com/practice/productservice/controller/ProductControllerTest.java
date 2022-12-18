@@ -3,10 +3,10 @@ package com.practice.productservice.controller;
 
 import com.practice.productservice.WebApplicationTest;
 import com.practice.productservice.constant.Constant;
-import com.practice.productservice.entity.Type;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.BaseProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
+import com.practice.productservice.entity.Type;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,7 +47,8 @@ ProductControllerTest extends WebApplicationTest {
         void should_return_all_products_by_page() throws Exception {
             Pageable page = PageRequest.of(0, 2);
 
-            mockMvc.perform(get("/products?page=0&size=2")
+            mockMvc.perform(get("/product-service/api/v1/products?page=0&size=2")
+                            .header("token", Constant.TOKEN)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(OBJECT_MAPPER.writeValueAsString(page)))
                     .andExpect(status().isOk())
@@ -63,7 +64,7 @@ ProductControllerTest extends WebApplicationTest {
         void should_return_favorite_products_by_page() throws Exception {
             Pageable page = PageRequest.of(0, 2);
 
-            mockMvc.perform(get("/products/favorites")
+            mockMvc.perform(get("/product-service/api/v1/products/favorites")
                             .header("token", Constant.TOKEN)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(OBJECT_MAPPER.writeValueAsString(page)))
@@ -80,7 +81,8 @@ ProductControllerTest extends WebApplicationTest {
         void should_return_product_by_page_and_type() throws Exception {
             Pageable page = PageRequest.of(0, 2);
 
-            mockMvc.perform(get("/products?page=0&size=2&type=BEAUTY")
+            mockMvc.perform(get("/product-service/api/v1/products?page=0&size=2&type=BEAUTY")
+                            .header("token", Constant.TOKEN)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(OBJECT_MAPPER.writeValueAsString(page))
                             .contentType(OBJECT_MAPPER.writeValueAsString("BEAUTY")))
@@ -98,13 +100,15 @@ ProductControllerTest extends WebApplicationTest {
         @Test
         @Sql("/sql/data.sql")
         void should_remove_product_by_id() throws Exception {
-            mockMvc.perform(delete("/products/1"))
+            mockMvc.perform(delete("/product-service/api/v1/products?id=3")
+                            .header("token", Constant.TOKEN))
                     .andExpect(status().isNoContent());
         }
 
         @Test
         void should_throw_404_error_when_product_not_exists() throws Exception {
-            mockMvc.perform(delete("/products/100"))
+            mockMvc.perform(delete("/product-service/api/v1/products?id=100")
+                            .header("token", Constant.TOKEN))
                     .andExpect(status().isNotFound());
         }
     }
@@ -119,7 +123,7 @@ ProductControllerTest extends WebApplicationTest {
                 .type(Type.SPORTING_GOODS)
                 .url(List.of("url"))
                 .build();
-        mockMvc.perform(post("/products")
+        mockMvc.perform(post("/product-service/api/v1/products")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(addProductRequest)))
@@ -130,20 +134,18 @@ ProductControllerTest extends WebApplicationTest {
     @Sql("/sql/data.sql")
     void should_update_product_info() throws Exception {
         UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, Type.SPORTING_GOODS);
-        mockMvc.perform(put("/products/1")
+        mockMvc.perform(put("/product-service/api/v1/products/3")
+                        .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(updateProductRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.productName").value("testName"))
-                .andExpect(jsonPath("$.price").value(88888))
-                .andExpect(jsonPath("$.type").value(Type.SPORTING_GOODS.toString()));
+                .andExpect(status().isOk());
     }
 
     @Test
     void should_throw_404_error_when_product_not_exists() throws Exception {
         UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, Type.SPORTING_GOODS);
-        mockMvc.perform(put("/products/100000")
+        mockMvc.perform(put("/product-service/api/v1/products/100000")
+                        .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(updateProductRequest)))
                 .andExpect(status().isNotFound())
@@ -153,7 +155,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     void should_add_product_to_favorite() throws Exception {
-        mockMvc.perform(post("/products/favorites?id=1")
+        mockMvc.perform(post("/product-service/api/v1/products/favorites?id=2")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isCreated());
     }
@@ -161,7 +163,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     void should_remove_product_from_favorite() throws Exception {
-        mockMvc.perform(delete("/products/favorites?id=1")
+        mockMvc.perform(delete("/product-service/api/v1/products/favorites?id=1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isNoContent());
     }
@@ -170,7 +172,7 @@ ProductControllerTest extends WebApplicationTest {
     void should_add_want_to_buy_product() throws Exception {
         BaseProductRequest baseProductRequest = new BaseProductRequest(
                 "want-to-buy product", "want to buy", new BigDecimal(666), 1, Type.BEAUTY);
-        mockMvc.perform(post("/products")
+        mockMvc.perform(post("/product-service/api/v1/products")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(baseProductRequest)))
@@ -181,7 +183,7 @@ ProductControllerTest extends WebApplicationTest {
     @Sql("/sql/data.sql")
     public void should_send_out_buy_item_email() throws Exception {
         doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
-        mockMvc.perform(post("/products/buy-item/1")
+        mockMvc.perform(post("/product-service/api/v1/products/buy-item/1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isOk());
     }
@@ -190,7 +192,7 @@ ProductControllerTest extends WebApplicationTest {
     @Sql("/sql/data.sql")
     public void should_send_out_sell_item_email() throws Exception {
         doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
-        mockMvc.perform(post("/products/sell-item/1")
+        mockMvc.perform(post("/product-service/api/v1/products/sell-item/1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isOk());
     }

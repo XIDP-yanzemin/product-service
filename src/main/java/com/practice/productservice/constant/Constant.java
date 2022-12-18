@@ -14,7 +14,7 @@ public class Constant {
     public static final String SELL_EMAIL_BODY = "Good news! Someone is interested in selling you the item you want. Please contact the seller through this email: ";
     public static final String BUY_SUBJECT = "Someone is interested in buying your item";
     public static final String BUY_EMAIL_BODY = "Good news! Someone is interested in buying your item. Please contact the buyer through this email: ";
-    public static final String TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiT1JESU5BUllfVVNFUiIsImlkIjoyLCJleHAiOjE2NzExMTM2NDd9.3WwL4gcCbhwGrV38AdtkPCjcpV3wJpsNGTLYQvbB3Dk";
+    public static final String TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwiZXhwIjoxNjcxNjMxMTMyfQ.PRhJDQymCXCTdxbgc99ABggoLkMW5kZCyeGUS51e_Sc";
 
     static {
         IMAGE_TYPES.add("image/jpeg");
