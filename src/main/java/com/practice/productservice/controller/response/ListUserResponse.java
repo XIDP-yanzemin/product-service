@@ -1,4 +1,4 @@
-package com.practice.productservice.client;
+package com.practice.productservice.controller.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
