@@ -50,6 +50,9 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private List<Image> imageList;
+//
+//    @Enumerated(EnumType.STRING)
+//    private PostType postType;
 
     public static Product buildProductFrom(ListUserResponse user, AddProductRequest addProductRequest, List<Image> imageList ) {
         return builder()
