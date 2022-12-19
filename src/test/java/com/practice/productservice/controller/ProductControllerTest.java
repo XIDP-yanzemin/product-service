@@ -81,7 +81,7 @@ ProductControllerTest extends WebApplicationTest {
         void should_return_product_by_page_and_type() throws Exception {
             Pageable page = PageRequest.of(0, 2);
 
-            mockMvc.perform(get("/product-service/api/v1/products?page=0&size=2&type=BEAUTY")
+            mockMvc.perform(get("/product-service/api/v1/products?page=0&size=2&productType=BEAUTY")
                             .header("token", Constant.TOKEN)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(OBJECT_MAPPER.writeValueAsString(page))
