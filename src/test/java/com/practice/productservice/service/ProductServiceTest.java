@@ -47,12 +47,6 @@ public class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-//    @Mock
-//    private FeignInterceptor feignInterceptor;
-//
-//    @Mock
-//    private NotificationFeignService notificationFeignService;
-
     @Mock
     private UserFeignService userFeignService;
 
@@ -255,16 +249,15 @@ public class ProductServiceTest {
     @Test
     void given_product_id_then_favorite_should_add_product_to_favorite() {
         UserDto userDto = new UserDto(1L);
-        UserProductRelation userProductRelation = new UserProductRelation(1L, 1L, 1L);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(userProductRelationRepository.findByUserIdAndProductId(1L, 1L)).thenReturn(Optional.of(userProductRelation));
-        when(userProductRelationRepository.save(userProductRelation)).thenReturn(null);
+        when(userProductRelationRepository.findByUserIdAndProductId(1L, 1L)).thenReturn(Optional.empty());
+        when(userProductRelationRepository.save(any(UserProductRelation.class))).thenReturn(null);
 
         productService.favorite(userDto, 1L);
 
         verify(productRepository, times(1)).findById(1L);
         verify(userProductRelationRepository, times(1)).findByUserIdAndProductId(1L, 1L);
-        verify(userProductRelationRepository, times(1)).save(userProductRelation);
+        verify(userProductRelationRepository, times(1)).save(any(UserProductRelation.class));
     }
 
     @Test
