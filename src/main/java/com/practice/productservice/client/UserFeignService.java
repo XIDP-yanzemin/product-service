@@ -1,5 +1,6 @@
 package com.practice.productservice.client;
 
+import com.practice.productservice.controller.response.ListUserResponse;
 import com.practice.productservice.interceptor.FeignInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;

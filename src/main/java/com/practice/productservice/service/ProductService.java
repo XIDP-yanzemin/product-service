@@ -1,12 +1,13 @@
 package com.practice.productservice.service;
 
-import com.practice.productservice.client.ListUserResponse;
+import com.practice.productservice.client.NotificationFeignService;
 import com.practice.productservice.client.UserFeignService;
-import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
 import com.practice.productservice.controller.response.ProductResponseForPage;
+import com.practice.productservice.controller.response.ListUserResponse;
+import com.practice.productservice.controller.request.SendEmailRequest;
 import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
@@ -40,7 +41,7 @@ public class ProductService {
 
     private final UserProductRelationRepository userProductRelationRepository;
 
-    private final EmailService emailService;
+    private final NotificationFeignService notificationFeignService;
 
 
     public CommonPageModel<ProductResponseForPage> list(Pageable pageable, Type type) {
@@ -107,14 +108,30 @@ public class ProductService {
     }
 
     public void buyProduct(UserDto userDto, Long productId) {
-        sendEmailToEmailReceiver(userDto, productId, Constant.BUY_SUBJECT, Constant.BUY_EMAIL_BODY);
+        Long userId = userDto.getUserId();
+        ListUserResponse postOwner = getPosterOwner(productId);
+        ListUserResponse contactor = userFeignService.getUserById(userId);
+        SendEmailRequest buyProductNotification = SendEmailRequest.buildBuyProductNotificationFrom(postOwner, contactor.getEmail());
+        notificationFeignService.sendEmail(buyProductNotification);
     }
-
 
     public void sellProduct(UserDto userDto, Long productId) {
-        sendEmailToEmailReceiver(userDto, productId, Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
+        Long userId = userDto.getUserId();
+        ListUserResponse postOwner = getPosterOwner(productId);
+        ListUserResponse contactor = userFeignService.getUserById(userId);
+        SendEmailRequest sellProductNotification = SendEmailRequest.buildSellProductNotificationFrom(postOwner, contactor.getEmail());
+        notificationFeignService.sendEmail(sellProductNotification);
     }
 
+
+    private ListUserResponse getPosterOwner(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
+        ListUserResponse postOwner = userFeignService.getUserById(product.getUserId());
+        if (!product.getUserId().equals(postOwner.getId())) {
+            throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
+        }
+        return postOwner;
+    }
 
     private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {
         List<Long> userIdList = products.map(Product::getUserId).toList();
@@ -126,18 +143,6 @@ public class ProductService {
                                 .get(0)))
                 .collect(Collectors.toList());
         return CommonPageModel.from(products, pageable, responses);
-    }
-
-    private void sendEmailToEmailReceiver(UserDto userDto, Long productId, String buySubject, String buyEmailBody) {
-        Long userId = userDto.getUserId();
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        String senderEmail = userFeignService.getUserById(userId).getEmail();
-        ListUserResponse receiver = userFeignService.getUserById(product.getUserId());
-        String receiverEmail = receiver.getEmail();
-        if (!product.getUserId().equals(receiver.getId())) {
-            throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
-        }
-        emailService.sendEmail(receiverEmail, buySubject, buyEmailBody, senderEmail);
     }
 
 }
