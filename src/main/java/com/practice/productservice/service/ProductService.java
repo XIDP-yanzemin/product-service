@@ -11,7 +11,7 @@ import com.practice.productservice.controller.request.SendEmailRequest;
 import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
-import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.ProductType;
 import com.practice.productservice.entity.UserProductRelation;
 import com.practice.productservice.exception.BusinessException;
 import com.practice.productservice.exception.ErrorCode;
@@ -44,12 +44,12 @@ public class ProductService {
     private final NotificationFeignService notificationFeignService;
 
 
-    public CommonPageModel<ProductResponseForPage> list(Pageable pageable, Type type) {
-        if (Objects.isNull(type)) {
+    public CommonPageModel<ProductResponseForPage> list(Pageable pageable, ProductType productType) {
+        if (Objects.isNull(productType)) {
             Page<Product> all = productRepository.findAll(pageable);
             return getCommonPageModel(pageable, all);
         }
-        Page<Product> listByType = productRepository.findByType(type, pageable);
+        Page<Product> listByType = productRepository.findByProductType(productType, pageable);
         return getCommonPageModel(pageable, listByType);
     }
 

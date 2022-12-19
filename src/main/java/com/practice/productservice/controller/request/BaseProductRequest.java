@@ -1,7 +1,7 @@
 package com.practice.productservice.controller.request;
 
 
-import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,5 +29,5 @@ public class BaseProductRequest {
     private Integer amount;
 
     @NotNull(message = "type should not be null.")
-    private Type type;
+    private ProductType productType;
 }

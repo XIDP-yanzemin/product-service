@@ -1,18 +1,17 @@
 package com.practice.productservice.service;
 
-import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.client.UserFeignService;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
+import com.practice.productservice.controller.response.ListUserResponse;
 import com.practice.productservice.controller.response.ProductResponseForPage;
 import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
-import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.ProductType;
 import com.practice.productservice.entity.UserProductRelation;
 import com.practice.productservice.exception.ProductNotFound;
-import com.practice.productservice.interceptor.FeignInterceptor;
 import com.practice.productservice.repository.ProductRepository;
 import com.practice.productservice.repository.UserProductRelationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,17 +47,17 @@ public class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-    @Mock
-    private FeignInterceptor feignInterceptor;
+//    @Mock
+//    private FeignInterceptor feignInterceptor;
+//
+//    @Mock
+//    private NotificationFeignService notificationFeignService;
 
     @Mock
     private UserFeignService userFeignService;
 
     @Mock
     private UserProductRelationRepository userProductRelationRepository;
-
-    @Mock
-    private EmailService emailService;
 
 
     Image image = new Image();
@@ -75,7 +74,7 @@ public class ProductServiceTest {
         product.setPrice(new BigDecimal(1000));
         product.setDescription("");
         product.setAmount(1000);
-        product.setType(Type.SPORTING_GOODS);
+        product.setProductType(ProductType.SPORTING_GOODS);
         product.setImageList(List.of(image));
     }
 
@@ -111,18 +110,18 @@ public class ProductServiceTest {
             Pageable page = PageRequest.of(0, 2);
             Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
 
-            when(productRepository.findByType(Type.ART, page)).thenReturn(products);
+            when(productRepository.findByProductType(ProductType.ART, page)).thenReturn(products);
 
-            CommonPageModel<ProductResponseForPage> response = productService.list(page, Type.ART);
+            CommonPageModel<ProductResponseForPage> response = productService.list(page, ProductType.ART);
 
             assertEquals(1, response.getNumberOfElements());
             assertEquals(0, response.getPageNumber());
             assertEquals(2, response.getPageSize());
             assertEquals(1, response.getContent().size());
             assertEquals(1L, response.getContent().get(0).getId());
-            assertEquals(Type.SPORTING_GOODS, response.getContent().get(0).getType());
+            assertEquals(ProductType.SPORTING_GOODS, response.getContent().get(0).getProductType());
 
-            verify(productRepository, times(1)).findByType(Type.ART, page);
+            verify(productRepository, times(1)).findByProductType(ProductType.ART, page);
             verify(userFeignService, times(1)).getUsersByIdList(List.of(1L));
         }
 
@@ -184,7 +183,7 @@ public class ProductServiceTest {
                     .description("")
                     .price(new BigDecimal(10000))
                     .amount(1)
-                    .type(Type.ART)
+                    .productType(ProductType.ART)
                     .url(List.of("url"))
                     .build();
             ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
@@ -204,7 +203,7 @@ public class ProductServiceTest {
                     .description("")
                     .price(new BigDecimal(10000))
                     .amount(1)
-                    .type(Type.ART)
+                    .productType(ProductType.ART)
                     .url(null)
                     .build();
             ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
@@ -245,7 +244,7 @@ public class ProductServiceTest {
 
     @Test
     void given_update_product_request_then_update_should_update_product_info() {
-        UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, Type.SPORTING_GOODS);
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("newName", "description", new BigDecimal(2000), 99999, ProductType.SPORTING_GOODS);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         productService.update(1L, updateProductRequest);

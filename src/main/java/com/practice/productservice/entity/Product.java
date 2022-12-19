@@ -1,9 +1,8 @@
 package com.practice.productservice.entity;
 
-import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.controller.request.AddProductRequest;
-import com.practice.productservice.controller.request.BaseProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
+import com.practice.productservice.controller.response.ListUserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,7 +45,7 @@ public class Product {
     private Integer amount;
 
     @Enumerated(EnumType.STRING)
-    private Type type;
+    private ProductType productType;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
@@ -58,21 +57,9 @@ public class Product {
                 .price(addProductRequest.getPrice())
                 .description(addProductRequest.getDescription())
                 .amount(addProductRequest.getAmount())
-                .type(addProductRequest.getType())
+                .productType(addProductRequest.getProductType())
                 .userId(user.getId())
                 .imageList(imageList)
-                .build();
-    }
-
-    public static Product buildProductFrom(BaseProductRequest baseProductRequest, Long userId) {
-        return builder()
-                .userId(userId)
-                .productName(baseProductRequest.getName())
-                .price(baseProductRequest.getPrice())
-                .description(baseProductRequest.getDescription())
-                .price(baseProductRequest.getPrice())
-                .amount(baseProductRequest.getAmount())
-                .type(baseProductRequest.getType())
                 .build();
     }
 
@@ -81,6 +68,6 @@ public class Product {
         setPrice(updateProductRequest.getPrice());
         setAmount(updateProductRequest.getAmount());
         setDescription(updateProductRequest.getDescription());
-        setType(updateProductRequest.getType());
+        setProductType(updateProductRequest.getProductType());
     }
 }

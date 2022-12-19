@@ -6,7 +6,7 @@ import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
 import com.practice.productservice.controller.response.ProductResponseForPage;
 import com.practice.productservice.dto.UserDto;
-import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.ProductType;
 import com.practice.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -36,8 +36,8 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public CommonPageModel<ProductResponseForPage> listProductForPage(
             @PageableDefault Pageable pageable,
-            @RequestParam(required = false) Type type) {
-        return productService.list(pageable, type);
+            @RequestParam(required = false) ProductType productType) {
+        return productService.list(pageable, productType);
     }
 
     @GetMapping("/favorites")

@@ -2,11 +2,13 @@ package com.practice.productservice.controller;
 
 
 import com.practice.productservice.WebApplicationTest;
+import com.practice.productservice.client.NotificationFeignService;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.BaseProductRequest;
+import com.practice.productservice.controller.request.SendEmailRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
-import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.ProductType;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,8 +17,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -37,7 +37,7 @@ ProductControllerTest extends WebApplicationTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private JavaMailSender javaMailSender;
+    private NotificationFeignService notificationFeignService;
 
     @Nested
     class ListProductsTest {
@@ -120,7 +120,7 @@ ProductControllerTest extends WebApplicationTest {
                 .description("")
                 .price(new BigDecimal(1000))
                 .amount(1000)
-                .type(Type.SPORTING_GOODS)
+                .productType(ProductType.SPORTING_GOODS)
                 .url(List.of("url"))
                 .build();
         mockMvc.perform(post("/product-service/api/v1/products")
@@ -133,7 +133,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     void should_update_product_info() throws Exception {
-        UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, Type.SPORTING_GOODS);
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, ProductType.SPORTING_GOODS);
         mockMvc.perform(put("/product-service/api/v1/products/3")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +143,7 @@ ProductControllerTest extends WebApplicationTest {
 
     @Test
     void should_throw_404_error_when_product_not_exists() throws Exception {
-        UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, Type.SPORTING_GOODS);
+        UpdateProductRequest updateProductRequest = new UpdateProductRequest("testName", "new description", new BigDecimal(88888), 66666, ProductType.SPORTING_GOODS);
         mockMvc.perform(put("/product-service/api/v1/products/100000")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -171,7 +171,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     void should_add_want_to_buy_product() throws Exception {
         BaseProductRequest baseProductRequest = new BaseProductRequest(
-                "want-to-buy product", "want to buy", new BigDecimal(666), 1, Type.BEAUTY);
+                "want-to-buy product", "want to buy", new BigDecimal(666), 1, ProductType.BEAUTY);
         mockMvc.perform(post("/product-service/api/v1/products")
                         .header("token", Constant.TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -182,7 +182,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     public void should_send_out_buy_item_email() throws Exception {
-        doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
+        doNothing().when(notificationFeignService).sendEmail(Mockito.any(SendEmailRequest.class));
         mockMvc.perform(post("/product-service/api/v1/products/buy-item/1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isOk());
@@ -191,7 +191,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     public void should_send_out_sell_item_email() throws Exception {
-        doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
+        doNothing().when(notificationFeignService).sendEmail(Mockito.any(SendEmailRequest.class));
         mockMvc.perform(post("/product-service/api/v1/products/sell-item/1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isOk());

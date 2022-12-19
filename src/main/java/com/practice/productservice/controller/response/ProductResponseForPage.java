@@ -1,9 +1,8 @@
 package com.practice.productservice.controller.response;
 
-import com.practice.productservice.client.ListUserResponse;
 import com.practice.productservice.entity.Image;
 import com.practice.productservice.entity.Product;
-import com.practice.productservice.entity.Type;
+import com.practice.productservice.entity.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +37,7 @@ public class ProductResponseForPage {
 
     private Integer amount;
 
-    private Type type;
+    private ProductType productType;
 
     private List<Image> imageList;
 
@@ -55,7 +54,7 @@ public class ProductResponseForPage {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .amount(product.getAmount())
-                .type(product.getType())
+                .productType(product.getProductType())
                 .imageList(product.getImageList())
                 .build();
     }
