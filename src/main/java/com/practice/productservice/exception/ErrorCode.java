@@ -25,6 +25,8 @@ public enum ErrorCode {
 
     DUPLICATED_FAVORITE("product has been marked as favorite."),
 
+    UNKNOWN_POST_TYPE("unknown post type"),
+
     //user authentication exception
 
     NOT_LOG_IN_ERROR("Please log in first."),

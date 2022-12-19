@@ -2,14 +2,16 @@ package com.practice.productservice.service;
 
 import com.practice.productservice.client.NotificationFeignService;
 import com.practice.productservice.client.UserFeignService;
+import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.request.AddProductRequest;
+import com.practice.productservice.controller.request.SendEmailRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
-import com.practice.productservice.controller.response.ProductResponseForPage;
 import com.practice.productservice.controller.response.ListUserResponse;
-import com.practice.productservice.controller.request.SendEmailRequest;
+import com.practice.productservice.controller.response.ProductResponseForPage;
 import com.practice.productservice.dto.UserDto;
 import com.practice.productservice.entity.Image;
+import com.practice.productservice.entity.PostType;
 import com.practice.productservice.entity.Product;
 import com.practice.productservice.entity.ProductType;
 import com.practice.productservice.entity.UserProductRelation;
@@ -77,9 +79,9 @@ public class ProductService {
         if (Objects.nonNull(addProductRequest.getUrl())) {
             List<String> urls = addProductRequest.getUrl();
             List<Image> imageList = urls.stream().map(url -> Image.builder().url(url).build()).collect(Collectors.toList());
-            productRepository.save(Product.buildProductFrom(user, addProductRequest, imageList));
+            productRepository.save(Product.buildProductFrom(user, addProductRequest, imageList, PostType.SELL));
         } else {
-            Product product = Product.buildProductFrom(user, addProductRequest, Collections.emptyList());
+            Product product = Product.buildProductFrom(user, addProductRequest, Collections.emptyList(), PostType.BUY);
             productRepository.save(product);
         }
     }
@@ -107,30 +109,25 @@ public class ProductService {
         userProductRelationRepository.deleteById(relation.getId());
     }
 
-    public void buyProduct(UserDto userDto, Long productId) {
+    public void sendNotification(UserDto userDto, Long productId) {
         Long userId = userDto.getUserId();
-        ListUserResponse postOwner = getPosterOwner(productId);
-        ListUserResponse contactor = userFeignService.getUserById(userId);
-        SendEmailRequest buyProductNotification = SendEmailRequest.buildBuyProductNotificationFrom(postOwner, contactor.getEmail());
-        notificationFeignService.sendEmail(buyProductNotification);
-    }
-
-    public void sellProduct(UserDto userDto, Long productId) {
-        Long userId = userDto.getUserId();
-        ListUserResponse postOwner = getPosterOwner(productId);
-        ListUserResponse contactor = userFeignService.getUserById(userId);
-        SendEmailRequest sellProductNotification = SendEmailRequest.buildSellProductNotificationFrom(postOwner, contactor.getEmail());
-        notificationFeignService.sendEmail(sellProductNotification);
-    }
-
-
-    private ListUserResponse getPosterOwner(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
         ListUserResponse postOwner = userFeignService.getUserById(product.getUserId());
         if (!product.getUserId().equals(postOwner.getId())) {
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
         }
-        return postOwner;
+        ListUserResponse contactor = userFeignService.getUserById(userId);
+        if (product.getPostType().equals(PostType.SELL)) {
+            SendEmailRequest buyProductNotification = SendEmailRequest.buildNotificationRequestFrom(
+                    postOwner, contactor.getEmail(), Constant.BUY_SUBJECT, Constant.BUY_EMAIL_BODY);
+            notificationFeignService.sendEmail(buyProductNotification);
+        } else if (product.getPostType().equals(PostType.BUY)) {
+            SendEmailRequest sellProductNotification = SendEmailRequest.buildNotificationRequestFrom(
+                    postOwner, contactor.getEmail(), Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
+            notificationFeignService.sendEmail(sellProductNotification);
+        } else {
+            throw new BusinessException(ErrorCode.UNKNOWN_POST_TYPE);
+        }
     }
 
     private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {

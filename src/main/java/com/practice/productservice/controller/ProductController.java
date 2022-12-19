@@ -88,17 +88,9 @@ public class ProductController {
         productService.removeFavorite(userDto, id);
     }
 
-
-    @PostMapping("/buy-item/{productId}")
+    @PostMapping("/notification/{productId}")
     @ResponseStatus(HttpStatus.OK)
     public void buyProduct(@LoginUser UserDto userDto, @PathVariable Long productId) {
-        productService.buyProduct(userDto, productId);
+        productService.sendNotification(userDto, productId);
     }
-
-    @PostMapping("/sell-item/{productId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void sellProduct(@LoginUser UserDto userDto, @PathVariable Long productId) {
-        productService.sellProduct(userDto, productId);
-    }
-
 }

@@ -1,6 +1,5 @@
 package com.practice.productservice.controller.request;
 
-import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.response.ListUserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,20 +26,11 @@ public class SendEmailRequest {
     @NotEmpty(message = "email text must not be null.")
     private String text;
 
-    public static SendEmailRequest buildSellProductNotificationFrom(ListUserResponse postOwner, String contactorEmail) {
+    public static SendEmailRequest buildNotificationRequestFrom(ListUserResponse postOwner, String contactorEmail, String subject, String emailBody) {
         return builder()
                 .emailReceiver(postOwner.getEmail())
-                .subject(Constant.SELL_SUBJECT)
-                .emailBody(Constant.SELL_EMAIL_BODY)
-                .text(contactorEmail)
-                .build();
-    }
-
-    public static SendEmailRequest buildBuyProductNotificationFrom(ListUserResponse postOwner, String contactorEmail) {
-        return builder()
-                .emailReceiver(postOwner.getEmail())
-                .subject(Constant.BUY_SUBJECT)
-                .emailBody(Constant.BUY_EMAIL_BODY)
+                .subject(subject)
+                .emailBody(emailBody)
                 .text(contactorEmail)
                 .build();
     }

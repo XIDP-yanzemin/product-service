@@ -183,16 +183,7 @@ ProductControllerTest extends WebApplicationTest {
     @Sql("/sql/data.sql")
     public void should_send_out_buy_item_email() throws Exception {
         doNothing().when(notificationFeignService).sendEmail(Mockito.any(SendEmailRequest.class));
-        mockMvc.perform(post("/product-service/api/v1/products/buy-item/1")
-                        .header("token", Constant.TOKEN))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @Sql("/sql/data.sql")
-    public void should_send_out_sell_item_email() throws Exception {
-        doNothing().when(notificationFeignService).sendEmail(Mockito.any(SendEmailRequest.class));
-        mockMvc.perform(post("/product-service/api/v1/products/sell-item/1")
+        mockMvc.perform(post("/product-service/api/v1/products/notification/1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isOk());
     }
