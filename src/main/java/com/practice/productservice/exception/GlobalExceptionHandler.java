@@ -14,8 +14,6 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // todo:  add 401 exception handler
-
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
