@@ -1,32 +1,10 @@
-file-save-path: /Users/zemin.yan/Desktop/images/
 spring:
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: josieyan123@gmail.com
-    password: uvxhgfsogbplswyi
-    properties:
-      mail:
-        smtp:
-          starttls:
-            enable: true
-            required: true
-          auth: true
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-  datasource:
-    url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_ON_EXIT=FALSE
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
-  h2:
-    console:
-      enabled: true
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10485760
-      max-request-size: 10MB
+  application:
+    name: product-service
+  cloud:
+    config:
+      uri: http://localhost:9006
+      profile: test
+      label: main
+  config:
+    import: optional:configserver:http://localhost:9006
