@@ -1,7 +1,7 @@
 package com.practice.productservice.service;
 
-import com.practice.productservice.client.NotificationFeignService;
-import com.practice.productservice.client.UserFeignService;
+import com.practice.productservice.client.NotificationClient;
+import com.practice.productservice.client.UserClient;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.SendEmailRequest;
@@ -39,11 +39,11 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    private final UserFeignService userFeignService;
+    private final UserClient userClient;
 
     private final UserProductRelationRepository userProductRelationRepository;
 
-    private final NotificationFeignService notificationFeignService;
+    private final NotificationClient notificationClient;
 
 
     public CommonPageModel<ProductResponseForPage> list(Pageable pageable, ProductType productType) {
@@ -75,7 +75,7 @@ public class ProductService {
     }
 
     public void add(UserDto userDto, AddProductRequest addProductRequest) {
-        ListUserResponse user = userFeignService.getUserById(userDto.getUserId());
+        ListUserResponse user = userClient.getUserById(userDto.getUserId());
         if (Objects.nonNull(addProductRequest.getUrl())) {
             List<String> urls = addProductRequest.getUrl();
             List<Image> imageList = urls.stream().map(url -> Image.builder().url(url).build()).collect(Collectors.toList());
@@ -112,19 +112,19 @@ public class ProductService {
     public void sendNotification(UserDto userDto, Long productId) {
         Long userId = userDto.getUserId();
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFound(ErrorCode.PRODUCT_NOT_FOUND));
-        ListUserResponse postOwner = userFeignService.getUserById(product.getUserId());
+        ListUserResponse postOwner = userClient.getUserById(product.getUserId());
         if (!product.getUserId().equals(postOwner.getId())) {
             throw new BusinessException(ErrorCode.PRODUCT_OWNER_EXCEPTION);
         }
-        ListUserResponse contactor = userFeignService.getUserById(userId);
+        ListUserResponse contactor = userClient.getUserById(userId);
         if (product.getPostType().equals(PostType.SELL)) {
             SendEmailRequest buyProductNotification = SendEmailRequest.buildNotificationRequestFrom(
                     postOwner, contactor.getEmail(), Constant.BUY_SUBJECT, Constant.BUY_EMAIL_BODY);
-            notificationFeignService.sendEmail(buyProductNotification);
+            notificationClient.sendEmail(buyProductNotification);
         } else if (product.getPostType().equals(PostType.BUY)) {
             SendEmailRequest sellProductNotification = SendEmailRequest.buildNotificationRequestFrom(
                     postOwner, contactor.getEmail(), Constant.SELL_SUBJECT, Constant.SELL_EMAIL_BODY);
-            notificationFeignService.sendEmail(sellProductNotification);
+            notificationClient.sendEmail(sellProductNotification);
         } else {
             throw new BusinessException(ErrorCode.UNKNOWN_POST_TYPE);
         }
@@ -132,7 +132,7 @@ public class ProductService {
 
     private CommonPageModel<ProductResponseForPage> getCommonPageModel(Pageable pageable, Page<Product> products) {
         List<Long> userIdList = products.map(Product::getUserId).toList();
-        List<ListUserResponse> users = userFeignService.getUsersByIdList(userIdList);
+        List<ListUserResponse> users = userClient.getUsersByIdList(userIdList);
         List<ProductResponseForPage> responses = products.stream().
                 map(product -> ProductResponseForPage.buildProductResponseForPageFrom(
                         product, users.stream().filter(user -> user.getId().equals(product.getUserId()))

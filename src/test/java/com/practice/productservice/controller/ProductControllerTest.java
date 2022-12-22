@@ -2,7 +2,7 @@ package com.practice.productservice.controller;
 
 
 import com.practice.productservice.WebApplicationTest;
-import com.practice.productservice.client.NotificationFeignService;
+import com.practice.productservice.client.NotificationClient;
 import com.practice.productservice.constant.Constant;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.BaseProductRequest;
@@ -37,7 +37,7 @@ ProductControllerTest extends WebApplicationTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private NotificationFeignService notificationFeignService;
+    private NotificationClient notificationClient;
 
     @Nested
     class ListProductsTest {
@@ -182,7 +182,7 @@ ProductControllerTest extends WebApplicationTest {
     @Test
     @Sql("/sql/data.sql")
     public void should_send_out_buy_item_email() throws Exception {
-        doNothing().when(notificationFeignService).sendEmail(Mockito.any(SendEmailRequest.class));
+        doNothing().when(notificationClient).sendEmail(Mockito.any(SendEmailRequest.class));
         mockMvc.perform(post("/product-service/api/v1/products/notification/1")
                         .header("token", Constant.TOKEN))
                 .andExpect(status().isOk());

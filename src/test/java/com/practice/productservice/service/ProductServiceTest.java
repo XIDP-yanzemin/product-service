@@ -1,6 +1,6 @@
 package com.practice.productservice.service;
 
-import com.practice.productservice.client.UserFeignService;
+import com.practice.productservice.client.UserClient;
 import com.practice.productservice.controller.request.AddProductRequest;
 import com.practice.productservice.controller.request.UpdateProductRequest;
 import com.practice.productservice.controller.response.CommonPageModel;
@@ -48,7 +48,7 @@ public class ProductServiceTest {
     private ProductService productService;
 
     @Mock
-    private UserFeignService userFeignService;
+    private UserClient userClient;
 
     @Mock
     private UserProductRelationRepository userProductRelationRepository;
@@ -77,7 +77,7 @@ public class ProductServiceTest {
         @BeforeEach
         void setUp() {
             List<ListUserResponse> listUserResponse = List.of(new ListUserResponse(1L, "user", "test@gmail.com", "1234567890", "test address"));
-            when(userFeignService.getUsersByIdList(List.of(1L))).thenReturn(listUserResponse);
+            when(userClient.getUsersByIdList(List.of(1L))).thenReturn(listUserResponse);
         }
 
         @Test
@@ -96,7 +96,7 @@ public class ProductServiceTest {
             assertEquals(1L, response.getContent().get(0).getId());
 
             verify(productRepository, times(1)).findAll(page);
-            verify(userFeignService, times(1)).getUsersByIdList(List.of(1L));
+            verify(userClient, times(1)).getUsersByIdList(List.of(1L));
         }
 
         @Test
@@ -116,7 +116,7 @@ public class ProductServiceTest {
             assertEquals(ProductType.SPORTING_GOODS, response.getContent().get(0).getProductType());
 
             verify(productRepository, times(1)).findByProductType(ProductType.ART, page);
-            verify(userFeignService, times(1)).getUsersByIdList(List.of(1L));
+            verify(userClient, times(1)).getUsersByIdList(List.of(1L));
         }
 
     }
@@ -181,12 +181,12 @@ public class ProductServiceTest {
                     .url(List.of("url"))
                     .build();
             ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
-            when(userFeignService.getUserById(1L)).thenReturn(user);
+            when(userClient.getUserById(1L)).thenReturn(user);
             when(productRepository.save(any(Product.class))).thenReturn(null);
 
             productService.add(userDto, addProductRequest);
 
-            verify(userFeignService, times(1)).getUserById(1L);
+            verify(userClient, times(1)).getUserById(1L);
             verify(productRepository, times(1)).save(any(Product.class));
         }
 
@@ -201,12 +201,12 @@ public class ProductServiceTest {
                     .url(null)
                     .build();
             ListUserResponse user = ListUserResponse.builder().id(1L).username("username").cellphone("1234567890").email("test@gmail.com").address("address").build();
-            when(userFeignService.getUserById(1L)).thenReturn(user);
+            when(userClient.getUserById(1L)).thenReturn(user);
             when(productRepository.save(any(Product.class))).thenReturn(null);
 
             productService.add(userDto, addProductRequest);
 
-            verify(userFeignService, times(1)).getUserById(1L);
+            verify(userClient, times(1)).getUserById(1L);
             verify(productRepository, times(1)).save(any(Product.class));
         }
     }
@@ -217,7 +217,7 @@ public class ProductServiceTest {
         Pageable page = PageRequest.of(0, 2);
         Page<Product> products = new PageImpl<>(List.of(product), page, List.of(product).size());
         List<ListUserResponse> listUserResponse = List.of(new ListUserResponse(1L, "user", "test@gmail.com", "1234567890", "test address"));
-        when(userFeignService.getUsersByIdList(List.of(1L))).thenReturn(listUserResponse);
+        when(userClient.getUsersByIdList(List.of(1L))).thenReturn(listUserResponse);
 
         UserProductRelation userProductRelation = new UserProductRelation(1L, 1L, 1L);
         when(userProductRelationRepository.findByUserId(userDto.getUserId())).thenReturn(List.of(userProductRelation));
