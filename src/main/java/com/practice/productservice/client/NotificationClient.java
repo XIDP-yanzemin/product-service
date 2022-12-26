@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "notification-service", configuration = {FeignInterceptor.class})
+@FeignClient(name = "notification-service",
+        url = "http://localhost:8082/api/v1/email",
+        configuration = {FeignInterceptor.class})
 public interface NotificationClient {
 
     @RequestMapping(method = RequestMethod.POST)
