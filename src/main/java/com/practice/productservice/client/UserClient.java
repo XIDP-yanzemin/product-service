@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
-@FeignClient(name = "user-service", configuration={FeignInterceptor.class})
+@FeignClient(name = "user-service", url = "http://localhost:8081/api/v1/users", configuration={FeignInterceptor.class})
 public interface UserClient {
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}")
