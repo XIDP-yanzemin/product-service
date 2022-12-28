@@ -9,8 +9,6 @@ spring:
       label: main
       discovery:
         enabled: true
-#  config:
-#    import: optional:config server:http://localhost:9006
 eureka:
   client:
     register-with-eureka: true
