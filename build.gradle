@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
+    testImplementation 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
@@ -39,6 +39,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer:3.1.5'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.4'
     implementation 'org.springframework.cloud:spring-cloud-config-client:3.1.5'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:3.1.5'
 }
 
 tasks.named('test') {
