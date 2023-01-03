@@ -1,12 +1,24 @@
 spring:
-  application:
-    name: product-service
-  profiles:
-    active: dev
   servlet:
     multipart:
-      enabled: true
-      max-file-size: 10485760
-server:
-  port: 8080
-file-save-path: /Users/zemin.yan/Desktop/images/
+      enabled: ${servlet.enabled}
+      max-file-size: ${servlet.max-file-size}
+  jpa:
+    database-platform: ${jpa.database-platform}
+    open-in-view: ${jpa.open-in-view}
+    show-sql: ${jpa.show-sql}
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+      ddl-auto: ${jpa.hibernate.ddl-auto}
+  datasource:
+    url: ${jpa.url}
+    username: ${jpa.username}
+    password: ${jpa.password}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+      schema: resources/db/migration
+  flyway:
+    enabled: ${jpa.enable}
+
+file-save-path: ${path}

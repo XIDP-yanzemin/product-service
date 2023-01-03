@@ -1,14 +1,15 @@
+server:
+  port: 8080
 spring:
+  application:
+    name: product-service
   profiles:
     active: dev
   cloud:
     config:
-      name: product-service
-      profile: ${spring.profiles.active}
-      uri: http://localhost:9006
-      label: main
       discovery:
         enabled: true
+        service-id: SPRING-CLOUD-CONFIG-SERVER
 eureka:
   client:
     register-with-eureka: true
@@ -19,5 +20,3 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     instance-id: ${spring.cloud.client.ip-address}:${server.port}
-
-
